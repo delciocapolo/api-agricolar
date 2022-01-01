@@ -579,4 +579,26 @@ export class DatabaseConnectionGET {
             this.prisma.$disconnect();
         }
     }
+
+    async getCategory(id_categoria: number) {
+        try {
+            const category = await this.prisma['categoria'].findUnique({
+                where: {
+                    id_categoria
+                },
+            });
+
+            if (category === null) {
+                console.error("This category doesn't exists");
+                return;
+            }
+
+            return category;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Category from the Farm " + id_categoria);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
 };
