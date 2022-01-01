@@ -1,11 +1,10 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client/default.js"
 import type {
     Monitoramento,
     Carrinho,
     Consumidor,
     Sexo,
     Localizacao,
-    $Enums,
     ProdutoFavorito,
     Produto,
     Fazendeiro,
@@ -68,6 +67,7 @@ export class DatabaseConnectionPOST {
                     sexo: consumidor.sexo,
                     caminho_foto_consumidor: consumidor.caminho_foto_consumidor,
                     data_nascimento: consumidor.data_nascimento,
+                    role: consumidor.role,
                     localizacao: {
                         create: {
                             cidade: localizacao.cidade,
@@ -159,6 +159,7 @@ export class DatabaseConnectionPOST {
                     data_nascimento: fazendeiro.data_nascimento,
                     sexo: fazendeiro.sexo,
                     caminho_foto_fazendeiro: fazendeiro.caminho_foto_fazendeiro,
+                    role: fazendeiro.role,
                     localizacao: {
                         create: {
                             cidade: localizacao.cidade,
@@ -304,23 +305,39 @@ export class DatabaseConnectionPOST {
             if (existsFarmer === null || existsCostumer === null) {
                 existsFarmer === null ?
                     console.error('A FAZENDA NAO EXISTE') :
-                    console.error('O USUARIO NAO EXISTE NAO EXISTE');
+                    console.error('O USUARIO NAO EXISTE');
                 return;
             }
 
-            const data = await this.prisma['consumidor'].update({
+            await this.prisma['consumidor'].update({
                 where: {
                     id_consumidor
                 },
                 data: {
-                    role: privilegio
+                    role: "Employee",
                 },
             });
 
-            return {
-                data,
-                id_fazenda
-            };
+            const data = await this.prisma['colaborador'].create({
+                data: {
+                    empregado: {
+                        connect: {
+                            id_consumidor
+                        },
+                    },
+                    entidade: {
+                        connect: {
+                            id_fazenda
+                        }
+                    }
+                },
+                include: {
+                    empregado: true,
+                    entidade: true
+                }
+            })
+
+            return data;
         } catch (error) {
             console.error("CREATE EMPLOYEE, [ERROR]: ");
             console.error(error);
@@ -331,7 +348,235 @@ export class DatabaseConnectionPOST {
 };
 
 export class DatabaseConnectionGET {
+    private prisma: PrismaClient;
     constructor() {
+        this.prisma = new PrismaClient();
+    }
 
+    // GET PUBLICS
+    async getUsers(limit?: number) {
+        try {
+            if (limit) {
+                const users = await this.prisma['consumidor'].findMany({
+                    take: limit
+                });
+                return users;
+            }
+            const users = await this.prisma['consumidor'].findMany();
+            return users;
+        } catch (error) {
+            console.error('ERROR TO GET USERS');
+            console.error(error)
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async getFarmers(limit?: number) {
+        try {
+            if (limit) {
+                const farmers = await this.prisma['fazendeiro'].findMany({
+                    take: limit
+                });
+                return farmers;
+            }
+            const farmers = await this.prisma['fazendeiro'].findMany();
+            return farmers;
+        } catch (error) {
+            console.error('ERROR TO GET FARMER');
+            console.error(error)
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async getProducts(limit?: number) {
+        try {
+            if (limit) {
+                const products = await this.prisma['produto'].findMany({
+                    take: limit
+                });
+                return products;
+            }
+            const products = await this.prisma['produto'].findMany();
+            return products;
+        } catch (error) {
+            console.error('ERROR TO GET PRODUCT');
+            console.error(error)
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async getSoldProduct(limit?: number, id_sold_product?: string) {
+        try {
+            if (id_sold_product) {
+                const datas = await this.prisma['monitoramento'].findUnique({
+                    where: {
+                        id_monitoramento: id_sold_product
+                    }
+                });
+
+                if (datas === null) {
+                    console.error("Can't to find sold product");
+                    return;
+                }
+
+                return datas;
+            }
+
+            if (limit) {
+                const soldProducts = await this.prisma['monitoramento'].findMany({
+                    take: limit,
+                    include: {
+                        produto: true,
+                        consumidor: true,
+                        fazenda: true
+                    }
+                });
+
+                return soldProducts;
+            }
+            const soldProducts = await this.prisma['monitoramento'].findMany({
+                include: {
+                    produto: true,
+                    consumidor: true,
+                    fazenda: true
+                }
+            });
+
+            return soldProducts;
+        } catch (error) {
+            console.error('ERROR TO GET SOLD PRODUCTS');
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    // Implementando [GET] para [Fazendeiro]
+    async getProduct(id_produto: string) {
+        try {
+            const product = await this.prisma['produto'].findUnique({
+                where: {
+                    id_produto
+                }
+            });
+
+            if (product === null) {
+                console.error("This Products doesn't exists");
+                return;
+            }
+
+            return product;
+        } catch (error) {
+            console.error('ERROR TO GET PRODUCT');
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async fromFarmGetProducts(id_fazenda: string) {
+        try {
+            const fromFarmProducts = await this.prisma['fazenda'].findMany({
+                where: {
+                    id_fazenda,
+                },
+                include: {
+                    produto: true,
+                },
+            });
+
+            if (!fromFarmProducts) {
+                console.error("This product doesn't exists " + id_fazenda);
+                return;
+            }
+
+            return fromFarmProducts.map((product) => product.produto);
+        } catch (error) {
+            console.error("Can't Get Products from farm " + id_fazenda);
+            console.error();
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async farmExists(id_fazenda: string) {
+        try {
+            const farmExists = await this.prisma['fazenda'].findUnique({
+                where: {
+                    id_fazenda
+                }
+            });
+
+            if (farmExists === null) {
+                return {
+                    message: "This farm doesn't exists",
+                    status: false
+                }
+            }
+
+            return {
+                message: farmExists.nome_fazenda!,
+                status: true
+            };
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Products from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async fromFarmGetProductSolds(id_fazenda: string) {
+        try {
+            const status = await this.farmExists(id_fazenda);
+
+            if (!status?.status) {
+                console.error(status?.message);
+                return;
+            }
+
+            const fromFarmProducts = await this.prisma['monitoramento'].findMany({
+                where: {
+                    fazenda_id_fazenda: id_fazenda
+                },
+                include: {
+                    produto: true
+                }
+            });
+
+            return fromFarmProducts.map((product) => product.produto);
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Products from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async getStock(id_fazenda: string) {
+        try {
+            const status = await this.farmExists(id_fazenda);
+
+            if (!status?.status) {
+                console.error(status?.message);
+                return;
+            }
+
+            const stock = await this.prisma['stock'].findMany({
+                where: {
+                    fazenda_id_fazenda: id_fazenda
+                }
+            });
+
+            return stock;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Stock from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
     }
 };

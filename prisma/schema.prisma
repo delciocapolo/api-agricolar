@@ -20,7 +20,7 @@ model Fazendeiro {
   sexo                    Sexo     @map("sex")
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_fazendeiro String?  @db.VarChar(350)
-  role                    Role?    @default(Fazendeiro)
+  role                    Role
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -71,8 +71,21 @@ model Fazenda {
   produto             Produto[]
   estatisticas_vendas Monitoramento[]
   fazenda_favorita    FazendaFavorita[]
+  colaborador         Colaborador[]
 
   @@map("farm")
+}
+
+model Colaborador {
+  id_colaborador String @id @default(cuid()) @map("id_employee")
+
+  entidade            Fazenda @relation(fields: [entidade_id_fazenda], references: [id_fazenda])
+  entidade_id_fazenda String
+
+  empregado               Consumidor @relation(fields: [empregado_id_consumidor], references: [id_consumidor])
+  empregado_id_consumidor String
+
+  @@map("employee")
 }
 
 model Stock {
@@ -140,7 +153,7 @@ model Consumidor {
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_consumidor String?  @map("path_photo") @db.VarChar(250)
   numero_compras          Int?     @default(0) @map("count_purchases") @db.UnsignedMediumInt
-  role                    Role?    @default(Consumidor)
+  role                    Role
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -148,6 +161,7 @@ model Consumidor {
   carrinho         Carrinho[]
   produto_favorito ProdutoFavorito[]
   fazenda_favorita FazendaFavorita[]
+  colaborador      Colaborador[]
 
   localizacao                Localizacao @relation(fields: [localizacao_id_localizacao], references: [id_localizacao])
   localizacao_id_localizacao String      @unique @map("location_id_location")
@@ -158,8 +172,9 @@ model Consumidor {
 model Monitoramento {
   id_monitoramento String @id @default(cuid()) @map("id_monitoring") @db.VarChar(300)
 
-  produto                   Produto    @relation(fields: [produto_id_produto], references: [id_produto])
-  produto_id_produto        String     @map("product_id_product")
+  produto            Produto @relation(fields: [produto_id_produto], references: [id_produto])
+  produto_id_produto String  @map("product_id_product")
+
   consumidor                Consumidor @relation(fields: [consumidor_id_consumirdor], references: [id_consumidor])
   consumidor_id_consumirdor String     @map("costumer_id_costumer")
 
