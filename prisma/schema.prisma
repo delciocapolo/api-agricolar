@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -26,11 +20,12 @@ model Fazendeiro {
   sexo                    Sexo     @map("sex")
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_fazendeiro String?  @db.VarChar(350)
+  role                    Role?    @default(Fazendeiro)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  localizacao               Localizacao @relation(fields: [localzacao_id_localizacao], references: [id_localizacao])
-  localzacao_id_localizacao String      @unique @map("location_id_location")
+  localizacao                Localizacao @relation(fields: [localizacao_id_localizacao], references: [id_localizacao])
+  localizacao_id_localizacao String      @unique @map("location_id_location")
 
   rede_social RedeSocial[]
   fazenda     Fazenda[]
@@ -129,6 +124,12 @@ model Produto {
   @@map("product")
 }
 
+enum Role {
+  Fazendeiro
+  Consumidor
+  Employee
+}
+
 model Consumidor {
   id_consumidor           String   @id @default(cuid()) @map("id_costumer") @db.VarChar(300)
   nome_consumidor         String   @map("costumer_name") @db.VarChar(150)
@@ -138,7 +139,8 @@ model Consumidor {
   sexo                    Sexo     @map("sex")
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_consumidor String?  @map("path_photo") @db.VarChar(250)
-  numero_compras          Int?     @default(1) @map("count_purchases") @db.UnsignedMediumInt
+  numero_compras          Int?     @default(0) @map("count_purchases") @db.UnsignedMediumInt
+  role                    Role?    @default(Consumidor)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
@@ -155,8 +157,6 @@ model Consumidor {
 
 model Monitoramento {
   id_monitoramento String @id @default(cuid()) @map("id_monitoring") @db.VarChar(300)
-  // vamos obter o [produto mais vendido], atraves da funcao max(count(_))
-  // Vamos obter o [total das vendas], atraves da funcao count do sql
 
   produto                   Produto    @relation(fields: [produto_id_produto], references: [id_produto])
   produto_id_produto        String     @map("product_id_product")

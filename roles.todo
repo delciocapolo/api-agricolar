@@ -4,7 +4,7 @@
             [ ] https://microservice.agricolar.com/costumer/create
             [ ] https://microservice.agricolar.com/costumer/costumerID/createwishlist
             [ ] https://microservice.agricolar.com/costumer/costumerID/createCart
-            [ ] https://microservice.agricolar.com/costumer/costumerID/createFavoriteFarms
+            [ ] https://microservice.agricolar.com/costumer/costumerID/createFavoriteFarm
             [ ] https://microservice.agricolar.com/costumer/costumerID/transition
         
         | para fazendeiro: endpoints:
