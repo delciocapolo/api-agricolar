@@ -1,0 +1,221 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sexo {
+  F
+  M
+}
+
+model Fazendeiro {
+  id_fazendeiro           String   @id @default(cuid()) @map("id_farmer") @db.VarChar(100)
+  nome_fazendeiro         String   @map("farmer_name") @db.VarChar(150)
+  email                   String   @unique @db.VarChar(100)
+  quantidade_fazendas     Int      @default(1) @map("count_farmer") @db.SmallInt
+  sexo                    Sexo     @map("sex")
+  data_nascimento         DateTime @map("born_on") @db.Date
+  caminho_foto_fazendeiro String?  @db.VarChar(350)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  localizacao               Localizacao @relation(fields: [localzacao_id_localizacao], references: [id_localizacao])
+  localzacao_id_localizacao String      @unique @map("location_id_location")
+
+  rede_social RedeSocial[]
+  fazenda     Fazenda[]
+
+  @@map("farmer")
+}
+
+model Localizacao {
+  id_localizacao String   @id @default(cuid())
+  provincia      String   @db.VarChar(150)
+  cidade         String   @db.VarChar(150)
+  createdAt      DateTime @default(now())
+
+  consumidor Consumidor?
+  fazendeiro Fazendeiro?
+
+  @@map("location")
+}
+
+model RedeSocial {
+  id_redesocial   String   @id @default(cuid()) @map("id_socialmedia")
+  nome_redesocial String   @db.VarChar(50)
+  url_redesocial  String   @unique @map("url_socialmedia") @db.VarChar(150)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fazendeiro               Fazendeiro @relation(fields: [fazendeiro_id_fazendeiro], references: [id_fazendeiro])
+  fazendeiro_id_fazendeiro String
+
+  @@map("socialmedia")
+}
+
+model Fazenda {
+  id_fazenda   String   @id @default(cuid()) @map("id_farm")
+  nome_fazenda String   @unique @map("farm_name") @db.VarChar(250)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  fazendeiro               Fazendeiro @relation(fields: [fazendeiro_id_fazendeiro], references: [id_fazendeiro])
+  fazendeiro_id_fazendeiro String
+
+  stock               Stock[]
+  produto             Produto[]
+  estatisticas_vendas Monitoramento[]
+  fazenda_favorita    FazendaFavorita[]
+
+  @@map("farm")
+}
+
+model Stock {
+  id_stock              String   @id @default(cuid())
+  nome_produto          String   @map("product_stock_name") @db.VarChar(250)
+  quantidade_disponivel Int?     @default(0) @map("count_available") @db.SmallInt
+  stock_inicial         Int      @default(0) @map("count_stock") @db.SmallInt
+  createdAt             DateTime @default(now())
+
+  fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])
+  fazenda_id_fazenda String
+
+  @@map("stock")
+}
+
+model Categoria {
+  id_categoria   Int      @id @default(autoincrement()) @map("id_category")
+  nome_categoria String   @unique @db.VarChar(250)
+  createdAt      DateTime @default(now())
+
+  produto Produto[]
+
+  @@map("category")
+}
+
+model Produto {
+  id_produto    String @id @default(cuid()) @map("id_product")
+  nome_produto  String @unique @map("product_name") @db.VarChar(250)
+  preco_produto Float  @db.Float
+
+  categoria              Categoria @relation(fields: [categoria_id_categoria], references: [id_categoria])
+  categoria_id_categoria Int
+
+  caminho_foto_produto       String   @map("photo_product") @db.VarChar(350)
+  descricao                  String?  @map("description") @db.MediumText
+  servico_entrega_disponivel Boolean? @default(false) @map("delivery_service_available") @db.TinyInt
+  disponivel                 Boolean? @default(true) @db.TinyInt
+
+  fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])
+  fazenda_id_fazenda String
+
+  produtos_vendidos Monitoramento[]
+  no_carrinho       Carrinho[]
+  produto_favorito  ProdutoFavorito[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product")
+}
+
+model Consumidor {
+  id_consumidor           String   @id @default(cuid()) @map("id_costumer") @db.VarChar(300)
+  nome_consumidor         String   @map("costumer_name") @db.VarChar(150)
+  email                   String   @unique @db.VarChar(100)
+  numero_telefone         String   @db.VarChar(15)
+  senha                   String   @map("password") @db.VarChar(300)
+  sexo                    Sexo     @map("sex")
+  data_nascimento         DateTime @map("born_on") @db.Date
+  caminho_foto_consumidor String?  @map("path_photo") @db.VarChar(250)
+  numero_compras          Int?     @default(1) @map("count_purchases") @db.UnsignedMediumInt
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  compras          Monitoramento[]
+  carrinho         Carrinho[]
+  produto_favorito ProdutoFavorito[]
+  fazenda_favorita FazendaFavorita[]
+
+  localizacao                Localizacao @relation(fields: [localizacao_id_localizacao], references: [id_localizacao])
+  localizacao_id_localizacao String      @unique @map("location_id_location")
+
+  @@map("costumer")
+}
+
+model Monitoramento {
+  id_monitoramento String @id @default(cuid()) @map("id_monitoring") @db.VarChar(300)
+  // vamos obter o [produto mais vendido], atraves da funcao max(count(_))
+  // Vamos obter o [total das vendas], atraves da funcao count do sql
+
+  produto                   Produto    @relation(fields: [produto_id_produto], references: [id_produto])
+  produto_id_produto        String     @map("product_id_product")
+  consumidor                Consumidor @relation(fields: [consumidor_id_consumirdor], references: [id_consumidor])
+  consumidor_id_consumirdor String     @map("costumer_id_costumer")
+
+  fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])
+  fazenda_id_fazenda String  @map("farm_id_farm")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("monitoring")
+}
+
+model Carrinho {
+  id_carrinho String? @default(cuid()) @map("id_cart") @db.VarChar(300)
+
+  produto            Produto @relation(fields: [produto_id_produto], references: [id_produto])
+  produto_id_produto String  @map("product_id_product")
+
+  consumidor               Consumidor @relation(fields: [consumidor_id_consumidor], references: [id_consumidor])
+  consumidor_id_consumidor String     @map("costumer_id_costumer")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([produto_id_produto, consumidor_id_consumidor])
+  @@map("cart")
+}
+
+model ProdutoFavorito {
+  id_produto_favorito String? @default(cuid()) @db.VarChar(300)
+
+  produto            Produto @relation(fields: [produto_id_produto], references: [id_produto])
+  produto_id_produto String  @map("product_id_product")
+
+  consumidor               Consumidor @relation(fields: [consumidor_id_consumidor], references: [id_consumidor])
+  consumidor_id_consumidor String     @map("costumer_id_costumer")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([produto_id_produto, consumidor_id_consumidor])
+  @@map("FavoriteProduct")
+}
+
+model FazendaFavorita {
+  id_fazenda_favorita String? @default(cuid()) @map("id_favorite_farm") @db.VarChar(300)
+
+  consumidor               Consumidor @relation(fields: [consumidor_id_consumidor], references: [id_consumidor])
+  consumidor_id_consumidor String     @map("costumer_id_costumer")
+
+  fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])
+  fazenda_id_fazenda String  @map("farm_id_farm")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([consumidor_id_consumidor, fazenda_id_fazenda])
+  @@map("FavoriteFarm")
+}

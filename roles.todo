@@ -1,0 +1,39 @@
+[] Endpoints do microservice:
+    | para POST:
+        | para consumidores: endpoints:
+            [ ] https://microservice.agricolar.com/costumer/create
+            [ ] https://microservice.agricolar.com/costumer/costumerID/createwishlist
+            [ ] https://microservice.agricolar.com/costumer/costumerID/createCart
+            [ ] https://microservice.agricolar.com/costumer/costumerID/createFavoriteFarms
+            [ ] https://microservice.agricolar.com/costumer/costumerID/transition
+        
+        | para fazendeiro: endpoints:
+            [ ] https://microservice.agricolar.com/farmer/create
+            [ ] https://microservice.agricolar.com/farmer/createFarm
+            [ ] https://microservice.agricolar.com/farmer/farmID/product
+            [ ] https://microservice.agricolar.com/farmer/farmID/product/sold
+            [ ] https://microservice.agricolar.com/farmer/farmID/createEmployee
+
+    | para GET
+        | endpoints publicos: 
+            [ ] https://microservice.agricolar.com/costumers
+            [ ] https://microservice.agricolar.com/farmers
+            [ ] https://microservice.agricolar.com/products
+            [ ] https://microservice.agricolar.com/products //pensando
+
+        | para fazendeiro: endpoints:
+            [ ] https://microservice.agricolar.com/farmer/farmID/product
+            [ ] https://microservice.agricolar.com/farmer/farmID/product/soldId
+            [ ] https://microservice.agricolar.com/farmer/farmID/products
+            [ ] https://microservice.agricolar.com/farmer/farmID/products/solds
+            [ ] https://microservice.agricolar.com/farmer/farmID/products/stock
+            [ ] https://microservice.agricolar.com/farmer/farmID/products/categorieID
+            [ ] https://microservice.agricolar.com/farmer/farmID/products/categories
+            [ ] https://microservice.agricolar.com/farmer/farmID/clients
+            [ ] https://microservice.agricolar.com/farmer/farmID/statistics
+
+        | para consumidores: endpoints:
+            [ ] https://microservice.agricolar.com/costumer/costumerID/wishlist
+            [ ] https://microservice.agricolar.com/costumer/costumerID/cart
+            [ ] https://microservice.agricolar.com/costumer/costumerID/favoriteFarms
+            [ ] https://microservice.agricolar.com/user/costumer/costumerID/preferences

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 20",
+  "_version": "20.1.0",
+  "compilerOptions": {
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    /* If transpiling with TypeScript: */
+    "moduleResolution": "Bundler",
+    "module": "Preserve",
+    "outDir": "dist",
+    "sourceMap": true,
+    "noEmit": true,
+    /* If your code doesn't run in the DOM: */
+    "lib": [
+      "es2022"
+    ],
+    /* Maines */
+    "rootDirs": [
+      "src"
+    ],
+    "types": [
+      "node"
+    ],
+    "allowArbitraryExtensions": true, /* Enable importing files with any extension, provided a declaration file is present. */
+  }
+}
