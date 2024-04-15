@@ -1,24 +1,37 @@
-import axios from "axios";
+import fetch from "node-fetch";
 import { Router } from "express";
 
-const credentialRoute = Router();
+const getCredentialRoute = Router();
 
-credentialRoute.get('/bi/:bi', async (req, res) => {
-    try {
-        const { bi } = req.params;
+getCredentialRoute.get("/bi/:bi", async (req, res) => {
+  try {
+    const { bi } = req.params;
 
-        const { data: BIFetchData } = await axios(`https://digital.ao/ao/actions/bi.ajcall.php?bi=${bi}`);
+    const response = await fetch(
+      `https://digital.ao/ao/actions/bi.ajcall.php?bi=${bi}`
+    );
+    const { success, data, error } = (await response.json()) as {
+      success: boolean;
+      data: object;
+      error: {
+        code: number;
+        message: string;
+      };
+    };
 
-        if (!BIFetchData || BIFetchData === undefined || BIFetchData === null) {
-            return res.status(404).json({
-                message: "BI not found"
-            }).end();
-        }
-
-        return res.status(200).json(BIFetchData).end();
-    } catch (error) {
-        console.error(error)
+    if (!success && error) {
+      return res
+        .status(404)
+        .json({
+          message: error.message,
+        })
+        .end();
     }
+
+    return res.status(202).json(data).end();
+  } catch (error) {
+    console.error(error);
+  }
 });
 
-export default credentialRoute;
+export default getCredentialRoute;
