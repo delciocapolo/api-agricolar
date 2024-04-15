@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "jest",
-    "dev": "node --watch --env-file=.env --import tsx ./src/model/@types/databaseTypes.ts"
+    "dev": "node --watch --env-file=.env --import tsx ./src/index.ts"
   },
   "type": "module",
   "repository": {
