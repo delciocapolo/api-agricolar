@@ -5,42 +5,16 @@ import type {
     Produto,
     Fazendeiro,
     Fazenda,
-    Categoria,
-    Role
 } from "@prisma/client";
-
-type CostumerAndProductType = {
-    id_consumidor: string;
-    id_produto: string;
-}
-type CostumerAndFarmType = {
-    id_consumidor: string;
-    id_fazenda: string;
-}
-type CreateClient = {
-    id_consumidor: string;
-    id_fazenda: string;
-}
-type CreateFarmType = {
-    id_fazendeiro: string;
-    email: string
-}
-type CreateProductType = {
-    id_fazenda: string;
-    categoria: Categoria;
-};
-type SellProductType = {
-    id_fazenda: string;
-    produto: Produto
-}
-
-type EmployeeRoletype = "Admin da Fazenda" | "Adicionar Produto" | "Criar Stock" | "Remover Produto" | "Criar Categoria";
-
-type CreateEmployeetype = {
-    id_fazenda: string;
-    id_consumidor: string;
-    privilegio: Role;
-}
+import type {
+    CostumerAndProductType,
+    CostumerAndFarmType,
+    CreateClient,
+    CreateEmployeetype,
+    CreateFarmType,
+    CreateProductType,
+    SellProductType
+} from "./@types/type";
 
 export class DatabaseConnectionPOST {
     private prisma: PrismaClient;
