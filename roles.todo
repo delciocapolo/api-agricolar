@@ -19,7 +19,6 @@
             [ ] https://microservice.agricolar.com/costumers
             [ ] https://microservice.agricolar.com/farmers
             [ ] https://microservice.agricolar.com/products
-            [ ] https://microservice.agricolar.com/products //pensando
 
         | para fazendeiro: endpoints:
             [ ] https://microservice.agricolar.com/farmer/farmID/product

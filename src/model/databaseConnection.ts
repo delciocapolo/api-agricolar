@@ -1,11 +1,7 @@
 import { PrismaClient } from "@prisma/client/default.js"
 import type {
-    Monitoramento,
-    Carrinho,
     Consumidor,
-    Sexo,
     Localizacao,
-    ProdutoFavorito,
     Produto,
     Fazendeiro,
     Fazenda,
@@ -18,6 +14,10 @@ type CostumerAndProductType = {
     id_produto: string;
 }
 type CostumerAndFarmType = {
+    id_consumidor: string;
+    id_fazenda: string;
+}
+type CreateClient = {
     id_consumidor: string;
     id_fazenda: string;
 }
@@ -44,7 +44,6 @@ type CreateEmployeetype = {
 
 export class DatabaseConnectionPOST {
     private prisma: PrismaClient;
-
     constructor() {
         this.prisma = new PrismaClient();
         this.prisma.$connect();
@@ -177,7 +176,7 @@ export class DatabaseConnectionPOST {
         }
     }
 
-    async createFarm({ id_fazendeiro, email }: CreateFarmType, fazenda: Fazenda) {
+    async createFarm({ id_fazendeiro }: CreateFarmType, fazenda: Fazenda) {
         try {
             const existsFarmer = await this.prisma['fazendeiro'].findUnique({
                 where: {
@@ -595,7 +594,323 @@ export class DatabaseConnectionGET {
 
             return category;
         } catch (error) {
-            console.error("An Error Ocurred when i tried get Category from the Farm " + id_categoria);
+            console.error("An Error Ocurred when i tried get Category" + id_categoria);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    async getCategories(limit?: number) {
+        try {
+            if (limit) {
+                const categories = await this.prisma['categoria'].findMany({
+                    take: limit
+                });
+
+                return categories;
+            }
+
+            const categories = await this.prisma['categoria'].findMany();
+            return categories;
+
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Categories");
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    async createClient({ id_consumidor, id_fazenda }: CreateClient) {
+        try {
+            const farm = await this.prisma['fazenda'].findUnique({
+                where: {
+                    id_fazenda
+                }
+            });
+
+            const costumer = await this.prisma['consumidor'].findUnique({
+                where: {
+                    id_consumidor
+                }
+            });
+
+            if (costumer === null || farm === null) {
+                costumer === null ?
+                    console.error("This [User] doesn't exists") :
+                    console.error("This [Farm] doesn't exists");
+                return;
+            }
+
+            const client = await this.prisma['clienteDaFazenda'].create({
+                data: {
+                    consumidor: {
+                        connect: {
+                            id_consumidor
+                        }
+                    },
+                    fazenda: {
+                        connect: {
+                            id_fazenda
+                        }
+                    }
+                }
+            });
+
+            return client;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried create Clients from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect()
+        }
+    }
+
+    async getClientsFromFarm(id_fazenda: string) {
+        try {
+            const status = await this.farmExists(id_fazenda);
+
+            if (status?.status !== undefined && !status.status) {
+                console.error(status.message);
+                return;
+            }
+
+            const clients = await this.prisma['fazenda'].findMany({
+                where: {
+                    id_fazenda
+                },
+                include: {
+                    cliente: {
+                        include: {
+                            consumidor: {
+                                select: {
+                                    _count: true,
+                                    nome_consumidor: true,
+                                    data_nascimento: true,
+                                    email: true,
+                                    localizacao: {
+                                        select: {
+                                            cidade: true,
+                                            provincia: true,
+                                        }
+                                    },
+                                    sexo: true,
+                                    numero_telefone: true,
+                                    caminho_foto_consumidor: true
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const listClint = clients.map((client) => client.cliente);
+            const clients_only = listClint.map((result, index = result.length) => result[index]?.consumidor)
+
+            return clients_only;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Clients from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    async getStatisticFromFarm(id_fazenda: string) {
+        try {
+            const status = await this.farmExists(id_fazenda);
+
+            if (status?.status !== undefined && !status.status) {
+                console.error(status.message);
+                return;
+            }
+
+            const statistics = await this.prisma['monitoramento'].findMany({
+                where: {
+                    fazenda_id_fazenda: id_fazenda
+                },
+                include: {
+                    consumidor: {
+                        select: {
+                            caminho_foto_consumidor: true,
+                            data_nascimento: true,
+                            email: true,
+                            localizacao: {
+                                select: {
+                                    cidade: true,
+                                    provincia: true
+                                }
+                            },
+                            nome_consumidor: true,
+                            numero_telefone: true,
+                            sexo: true,
+                            compras: {
+                                select: {
+                                    produto: {
+                                        select: {
+                                            nome_produto: true,
+                                            preco_produto: true,
+                                            descricao: true,
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    produto: {
+                        select: {
+                            caminho_foto_produto: true,
+                            nome_produto: true,
+                            categoria: {
+                                select: {
+                                    nome_categoria: true
+                                }
+                            },
+                            descricao: true,
+                            disponivel: true,
+                            servico_entrega_disponivel: true,
+                            preco_produto: true,
+                            id_produto: true,
+                            createdAt: true,
+                            produtos_vendidos: {
+                                select: {
+                                    produto: {
+                                        select: {
+                                            nome_produto: true,
+                                            preco_produto: true,
+                                            descricao: true,
+                                            categoria: {
+                                                select: {
+                                                    nome_categoria: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            return statistics;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Statistics from the Farm " + id_fazenda);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    // Implementando [GET] para [Consumidor]
+    async getWishListCostumer(id_consumidor: string) {
+        try {
+            const costumer = await this.prisma['produtoFavorito'].findMany({
+                where: {
+                    consumidor_id_consumidor: id_consumidor
+                },
+                select: {
+                    produto: {
+                        select: {
+                            id_produto: true,
+                            caminho_foto_produto: true,
+                            categoria: {
+                                select: {
+                                    nome_categoria: true
+                                }
+                            },
+                            nome_produto: true,
+                            preco_produto: true,
+                            descricao: true,
+                            createdAt: true,
+                            disponivel: true,
+                            servico_entrega_disponivel: true,
+                        }
+                    }
+                }
+            });
+
+            if (!costumer || costumer === null || costumer.length === 0) {
+                console.error("This [Costumer] doesn't exists");
+                return;
+            }
+
+            return costumer;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Favorite Product from the Client " + id_consumidor);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    async getCartCostumer(id_consumidor: string) {
+        try {
+            const costumer = await this.prisma['carrinho'].findMany({
+                where: {
+                    consumidor_id_consumidor: id_consumidor
+                },
+                select: {
+                    produto: {
+                        select: {
+                            id_produto: true,
+                            caminho_foto_produto: true,
+                            categoria: {
+                                select: {
+                                    nome_categoria: true
+                                }
+                            },
+                            nome_produto: true,
+                            preco_produto: true,
+                            descricao: true,
+                            createdAt: true,
+                            disponivel: true,
+                            servico_entrega_disponivel: true,
+                        }
+                    }
+                }
+            });
+
+            if (!costumer || costumer === null || costumer.length === 0) {
+                console.error("This [Costumer] doesn't exists");
+                return;
+            }
+
+            return costumer;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Cart from the Client " + id_consumidor);
+            console.error(error);
+        } finally {
+            this.prisma.$disconnect();
+        }
+    }
+
+    async getFavoriteFarm(id_consumidor: string) {
+        try {
+            const costumer = await this.prisma['fazendaFavorita'].findMany({
+                where: {
+                    consumidor_id_consumidor: id_consumidor
+                },
+                select: {
+                    fazenda: {
+                        select: {
+                            id_fazenda: true,
+                            nome_fazenda: true,
+                            createdAt: true,
+                        }
+                    }
+                }
+            });
+
+            if (!costumer || costumer === null || costumer.length === 0) {
+                console.error("This [Favorite Farm] doesn't exists");
+                return;
+            }
+
+            return costumer;
+        } catch (error) {
+            console.error("An Error Ocurred when i tried get Favorite Farm from the Client " + id_consumidor);
             console.error(error);
         } finally {
             this.prisma.$disconnect();

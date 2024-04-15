@@ -72,6 +72,7 @@ model Fazenda {
   estatisticas_vendas Monitoramento[]
   fazenda_favorita    FazendaFavorita[]
   colaborador         Colaborador[]
+  cliente             ClienteDaFazenda[]
 
   @@map("farm")
 }
@@ -162,6 +163,7 @@ model Consumidor {
   produto_favorito ProdutoFavorito[]
   fazenda_favorita FazendaFavorita[]
   colaborador      Colaborador[]
+  cliente          ClienteDaFazenda[]
 
   localizacao                Localizacao @relation(fields: [localizacao_id_localizacao], references: [id_localizacao])
   localizacao_id_localizacao String      @unique @map("location_id_location")
@@ -233,4 +235,17 @@ model FazendaFavorita {
 
   @@id([consumidor_id_consumidor, fazenda_id_fazenda])
   @@map("FavoriteFarm")
+}
+
+model ClienteDaFazenda {
+  id_client String @default(cuid())
+
+  fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])
+  fazenda_id_fazenda String  @map("farm_id_farm")
+
+  consumidor               Consumidor @relation(fields: [consumidor_id_consumidor], references: [id_consumidor])
+  consumidor_id_consumidor String     @map("costumer_id_costumer")
+
+  @@id([fazenda_id_fazenda, consumidor_id_consumidor])
+  @@map("clientInFarm")
 }
