@@ -1,0 +1,166 @@
+scalar Date
+
+enum Sexo {
+  M
+  F
+}
+
+enum Role {
+  Farmer
+  Costumer
+  Employee
+}
+
+type FazendeiroSchema {
+  id_fazendeiro: ID
+  nome_fazendeiro: String
+  email: String
+  quantidade_fazendas: Int
+  sexo: Sexo
+  data_nascimento: Date
+  role: Role
+  createAt: Date
+  updatedAt: Date
+  localizacao_id_localizacao: String
+}
+
+type LocalizacaoSchema {
+  id_localizacao: ID
+  provincia: String
+  cidade: String
+  createdAt: Date
+}
+
+type FarmSchema {
+  id_fazenda: ID
+  nome_fazenda: String
+  createAt: Date
+  updatedAt: Date
+  fazendeiro_id_fazendeiro: String
+}
+
+type ConsumidorSchema {
+  id_consumidor: ID
+  nome_consumidor: String
+  email: String
+  numero_telefone: String
+  senha: String
+  sexo: Sexo
+  data_nascimento: Date
+  caminho_foto_consumidor: String
+  numero_compras: Int
+  role: Role
+  createAt: Date
+  updatedAt: Date
+  localizacao_id_localizacao: String
+}
+
+type CategoriaSchema {
+  id_categoria: Int
+  nome_categoria: String
+  createdAt: Date
+}
+
+type CreateProductTypeSchema {
+  id_fazenda: ID
+  categoria: CategoriaSchema
+}
+
+type ProductSchema {
+  id_produto: ID
+  nome_produto: String
+  preco_produto: Float
+  categoria_id_categoria: Int
+  caminho_foto_produto: String
+  descricao: String
+  servico_entrega_disponivel: Boolean
+  disponivel: Boolean
+  fazenda_id_fazenda: String
+  createAt: Date
+  updatedAt: Date
+}
+
+type EmployeeSchema {
+  id_colaborador: ID
+  entidade_id_fazenda: String
+  empregado_id_consumidor: String
+}
+
+type CreateEmployeeSchema {
+  entidade: FarmSchema
+  empregado: ConsumidorSchema
+  employee: EmployeeSchema
+}
+
+type WishListSchema {
+  id_produto_favorito: ID
+  produto_id_produto: String
+  consumidor_id_consumidor: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+type CarrinhoSchema {
+  id_carrinho: ID
+  produto_id_produto: String
+  consumidor_id_consumidor: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+type FazendaFavoritaSchema {
+  id_fazenda_favorita: String
+  consumidor_id_consumidor: String
+  fazenda_id_fazenda: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+" provendo os valores "
+input ConsumidorInput {
+  nome_consumidor: String
+  email: String
+  numero_telefone: String
+  senha: String
+  sexo: Sexo
+  data_nascimento: Date
+  caminho_foto_consumidor: String
+  numero_compras: Int
+  role: Role
+}
+
+input LocalizacaoInput {
+  provincia: String
+  cidade: String
+}
+
+input WishListInput {
+  id_consumidor: ID!
+  id_produto: ID!
+}
+
+input CriarCarrinhoInput {
+  id_consumidor: ID!
+  id_produto: ID!
+}
+
+input FazendaFavoritaInput {
+  id_consumidor: ID!
+  id_fazenda: ID!
+}
+
+type Query {
+  done: String!
+}
+
+type Mutation {
+  createCostumer(
+    consumidor: ConsumidorInput
+    localizacao: LocalizacaoInput
+  ): ConsumidorSchema
+  createWishList(wishList: WishListInput): WishListSchema
+  createCart(carrinho: CriarCarrinhoInput): CarrinhoSchema
+  createFavoriteFarm(
+    fazendaFavorita: FazendaFavoritaInput
+  ): FazendaFavoritaSchema
+}

@@ -5,5 +5,6 @@ import { ContextAPI } from "../../../helpers/ContextType";
 import * as createSchema from "./schema";
 
 export const serverFarmerCreate = new ApolloServer<ContextAPI>({
-    ...createSchema
+    ...createSchema,
+    introspection: true
 });

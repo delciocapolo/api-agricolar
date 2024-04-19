@@ -12,7 +12,7 @@ enum Role {
 }
 
 type FazendeiroSchema {
-  id_fazendeiro: String
+  id_fazendeiro: ID
   nome_fazendeiro: String
   email: String
   quantidade_fazendas: Int
@@ -25,14 +25,14 @@ type FazendeiroSchema {
 }
 
 type LocalizacaoSchema {
-  id_localizacao: String
+  id_localizacao: ID
   provincia: String
   cidade: String
   createdAt: Date
 }
 
 type FarmSchema {
-  id_fazenda: String
+  id_fazenda: ID
   nome_fazenda: String
   createAt: Date
   updatedAt: Date
@@ -40,7 +40,7 @@ type FarmSchema {
 }
 
 type CostumerSchema {
-  id_consumidor: String
+  id_consumidor: ID
   nome_consumidor: String
   email: String
   numero_telefone: String
@@ -61,13 +61,8 @@ type CategoriaSchema {
   createdAt: Date
 }
 
-type CreateProductTypeSchema {
-  id_fazenda: String
-  categoria: CategoriaSchema
-}
-
 type ProductSchema {
-  id_produto: String
+  id_produto: ID
   nome_produto: String
   preco_produto: Float
   categoria_id_categoria: Int
@@ -88,23 +83,38 @@ type EmployeeSchema {
 
 type CreateEmployeeSchema {
   entidade: FarmSchema
-  empregado: Costumer
+  empregado: CostumerSchema
   employee: EmployeeSchema
 }
 
-input CreateFarmer {
-  fazendeiro: Fazendeiro
-  localizacao: Localizacao
+input FazendeiroInput {
+  nome_fazendeiro: String
+  email: String
+  quantidade_fazendas: Int
+  sexo: Sexo
+  data_nascimento: Date
+  role: Role
 }
 
-input CreateFarm {
-  id_fazendeiro: String!
-  fazenda: FarmSchema
+input LocalizacaoInput {
+  provincia: String
+  cidade: String
 }
 
-input CreateProduct {
-  credentials: CreateProductTypeSchema
-  produto: ProductSchema
+input FazendaInput {
+  nome_fazenda: String
+}
+input CredentialsInput {
+  id_fazend: ID!
+  nome_categoria: String!
+}
+input ProductInput {
+  nome_produto: String
+  preco_produto: Float
+  caminho_foto_produto: String
+  descricao: String
+  servico_entrega_disponivel: Boolean
+  disponivel: Boolean
 }
 
 input SellProduct {
@@ -122,9 +132,15 @@ type Query {
 }
 
 type Mutation {
-  createFarmer(farmer: CreateFarmer): FazendeiroSchema
-  createFarm(farm: CreateFarm): FarmSchema
-  createProduct(product: CreateProduct): ProductSchema
+  createFarmer(
+    fazendeiro: FazendeiroInput
+    localizacao: LocalizacaoInput
+  ): FazendeiroSchema
+  createFarm(id_fazendeiro: String!, farm: FazendaInput): FarmSchema
+  createProduct(
+    credentials: CredentialsInput
+    product: ProductInput
+  ): ProductSchema
   sellProduct(sellProduct: SellProduct): ProductSchema
   createEmployee(createEmployee: CreateEmployee): CreateEmployeeSchema
 }

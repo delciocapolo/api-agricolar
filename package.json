@@ -2,10 +2,10 @@
   "name": "apiagricolar",
   "version": "0.0.1",
   "description": "API ofical do site agricolar",
-  "main": "src/index.ts",
+  "main": "src/index.mts",
   "scripts": {
     "test": "jest",
-    "dev": "node --watch --env-file=.env --import tsx ./src/index.ts"
+    "dev": "NODE_DEBUG=server,main node --watch --env-file=.env --import tsx ./src/index.mts"
   },
   "type": "module",
   "repository": {
