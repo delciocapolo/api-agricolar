@@ -10,6 +10,11 @@ import { CreateProductType } from "../../../../../model/@types/type";
 import { Fazenda, Fazendeiro, Localizacao, Produto } from "../../../../../model/@types/types";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export const typeDefs = gql(
+  readFileSync(path.resolve(__dirname, "schema.graphql"), {
+    encoding: "utf-8",
+  })
+);
 
 // Types
 type CreateProductTypeSchema = {
@@ -32,11 +37,6 @@ type CreateFarm = {
   id_fazendeiro: string; 
   fazenda: Fazenda; 
 }
-export const typeDefs = gql(
-  readFileSync(path.resolve(__dirname, "schema.graphql"), {
-    encoding: "utf-8",
-  })
-);
 
 const database = new DatabaseConnectionPOST();
 export const resolvers = {

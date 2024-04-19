@@ -4,7 +4,7 @@ import http from "node:http";
 import cors, { CorsRequest } from "cors";
 import { debuglog } from "node:util";
 
-import getCredentialRoute from "./services/ExistenceBIOrNIF/route.mjs";
+import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
 import { serverFarmerCreate } from "./graphql/schema/POST/create/farmer/server";
 import { serverCostumerCreate } from "./graphql/schema/POST/create/costumer/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -50,15 +50,15 @@ app.use('/v1/farmer/create', expressMiddleware(
   serverFarmerCreate, {
     context: async ({req, res}) => ({
       token: generateToken(req, res),
-    })
-  }
+    }),
+  },
 ));
 app.use('/v1/costumer/create', expressMiddleware(serverCostumerCreate, {
   context: async ({req, res}) => ({
-    token: generateToken(req, res)
-  })
+    token: generateToken(req, res),
+  }),
 }));
-app.get('/v1/', (_, res) => (res.status(200).json({message: "NAO HA NADA AQUI! SE FUDEU"})));
+app.get('/v1/', (_, res) => (res.status(200).json({ message: "NÃO HÁ NADA AQUI! VOCÊ SE FUDEU" })));
 
 export {
   server,

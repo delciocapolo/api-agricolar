@@ -1,10 +1,10 @@
 import { ApolloServer } from "@apollo/server";
 import { buildSubgraphSchema } from "@apollo/subgraph";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { ContextAPI } from "../../../helpers/ContextType";
-import * as createSchema from "./schema";
+import {resolvers, typeDefs} from "./schema";
 
 export const serverFarmerCreate = new ApolloServer<ContextAPI>({
-    ...createSchema,
+    typeDefs,
+    resolvers,
     introspection: true
 });
