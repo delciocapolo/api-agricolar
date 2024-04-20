@@ -2,6 +2,7 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { gql } from "graphql-tag";
 import { fileURLToPath } from "node:url";
+import bcrypt from "bcrypt";
 // local modules
 import DATESCALAR from "../../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../../model/databaseConnection";
@@ -13,6 +14,7 @@ import {
   ProductTypeInput,
   SellProductInputType
 } from "../@types/farmer";
+import { BCRYPT_SALT } from "../../../../../utils/EnvConfigs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(
@@ -38,7 +40,11 @@ export const resolvers = {
       const token = ctx.token;
       console.log(token);
 
-      const response = await database.createFarmer({ fazendeiro, localizacao });
+      const that = { ...fazendeiro };
+      const salt = bcrypt.genSaltSync(BCRYPT_SALT);
+      const hash = bcrypt.hashSync(that.senha, salt);
+      const transformed = { ...that, senha: hash };
+      const response = await database.createFarmer({ fazendeiro: transformed, localizacao });
 
       if (!response) {
         console.error("An Error, trying create [Farmer]");

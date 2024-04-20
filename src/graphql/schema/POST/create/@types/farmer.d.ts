@@ -6,7 +6,8 @@ export type FarmerInputType = {
         email: string;
         data_nascimento: string;
         caminho_foto_fazendeiro: string;
-        sexo: Sexo
+        sexo: Sexo;
+        senha: string;
     }
     localizacao: {
         cidade: string;

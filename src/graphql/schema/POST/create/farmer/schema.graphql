@@ -75,8 +75,9 @@ type CreateEmployeeSchema {
 }
 
 input FazendeiroInput {
-  nome_fazendeiro: String
-  email: String
+  nome_fazendeiro: String!
+  email: String!
+  senha: String!
   caminho_foto_fazendeiro: String
   sexo: Sexo
   data_nascimento: String

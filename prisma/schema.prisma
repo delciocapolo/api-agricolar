@@ -21,6 +21,7 @@ enum Sexo {
 model Fazendeiro {
   id_fazendeiro           String   @id @default(cuid()) @map("id_farmer") @db.VarChar(100)
   nome_fazendeiro         String   @map("farmer_name") @db.VarChar(150)
+  senha                   String   @map("password") @db.VarChar(300)
   email                   String   @unique @db.VarChar(100)
   quantidade_fazendas     Int      @default(1) @map("count_farmer") @db.SmallInt
   sexo                    Sexo     @map("sex")

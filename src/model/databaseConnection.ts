@@ -141,6 +141,7 @@ export class DatabaseConnectionPOST {
         data: {
           nome_fazendeiro: fazendeiro.nome_fazendeiro,
           email: fazendeiro.email,
+          senha: fazendeiro.senha,
           data_nascimento: new Date(fazendeiro.data_nascimento),
           sexo: fazendeiro.sexo,
           caminho_foto_fazendeiro: fazendeiro.caminho_foto_fazendeiro,
