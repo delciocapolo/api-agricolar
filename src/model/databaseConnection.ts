@@ -2,18 +2,12 @@ import { PrismaClient } from "@prisma/client/default.js";
 import type {
   Consumidor,
   Localizacao,
-  Produto,
-  Fazendeiro,
-  Fazenda,
 } from "@prisma/client";
 import type {
   CostumerAndProductType,
   CostumerAndFarmType,
   CreateClient,
   CreateEmployeetype,
-  CreateFarmType,
-  CreateProductType,
-  SellProductType,
 } from "./@types/type";
 import { debuglog } from "util";
 import { FarmInputType, FarmerInputType, ProductTypeInput, SellProductInputType } from "../graphql/schema/POST/create/@types/farmer";

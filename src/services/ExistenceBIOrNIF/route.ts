@@ -3,7 +3,7 @@ import { Router } from "express";
 
 const getCredentialRoute = Router();
 
-getCredentialRoute.get("/bi/:bi", async (req, res) => {
+getCredentialRoute.get("/v1/bi/:bi", async (req, res) => {
   try {
     const { bi } = req.params;
 
@@ -23,6 +23,7 @@ getCredentialRoute.get("/bi/:bi", async (req, res) => {
       return res
         .status(404)
         .json({
+          status: error.code || 404,
           message: error.message,
         })
         .end();
