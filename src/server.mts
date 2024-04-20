@@ -4,11 +4,13 @@ import http from "node:http";
 import cors, { CorsRequest } from "cors";
 import { debuglog } from "node:util";
 
-import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
 import { serverFarmerCreate } from "./graphql/schema/POST/create/farmer/server";
 import { serverCostumerCreate } from "./graphql/schema/POST/create/costumer/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { generateToken } from "./utils/getToken";
+import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
+import { PORT } from "./utils/EnvConfigs";
+import { statistic } from "./DTO/statistic";
 
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +19,7 @@ const log = debuglog('server');
 app.use(
   cors<CorsRequest>({
     origin: "*",
+    optionsSuccessStatus: 200
   })
 );
 app.use(express.urlencoded({ extended: false }));
@@ -37,28 +40,38 @@ serverCostumerCreate.addPlugin(
 // definindo os servidores
 await serverFarmerCreate.start()
   .then((_) => {
-    log(`GRAPHQL [Create Farmer] SERVER IS RUNNING AT [http://localhost:5003/v1/farmer/create] 📬`)
+    statistic.push({
+      server: "GraphQL",
+      message: "Create Farmer -> SERVER IS RUNNING 📬",
+      adress: `http://localhost:${PORT}/v1/farmer/create`,
+    });
   });
 await serverCostumerCreate.start()
   .then((_) => {
-    log(`GRAPHQL [Create Costumer] SERVER IS RUNNING AT [http://localhost:5003/v1/costumer/create] 📬`)
+    statistic.push({
+      server: "GRAPHQL",
+      message: "Create Costumer -> SERVER IS RUNNING 📬",
+      adress: `http://localhost:${PORT}/v1/costumer/create`,
+    });
   })
 
 // Definindo as rotas
-app.use(getCredentialRoute);
 app.use('/v1/farmer/create', expressMiddleware(
   serverFarmerCreate, {
-    context: async ({req, res}) => ({
-      token: generateToken(req, res),
-    }),
-  },
+  context: async ({ req, res }) => ({
+    // token: generateToken(req, res) as string,
+    token: "",
+  }),
+},
 ));
 app.use('/v1/costumer/create', expressMiddleware(serverCostumerCreate, {
-  context: async ({req, res}) => ({
-    token: generateToken(req, res),
+  context: async ({ req, res }) => ({
+    // token: generateToken(req, res) as string,
+    token: ""
   }),
 }));
-app.get('/v1/', (_, res) => (res.status(200).json({ message: "NÃO HÁ NADA AQUI! VOCÊ SE FUDEU" })));
+app.use(getCredentialRoute);
+app.get('/v1/', (_, res) => (res.status(200).json({ message: "NÃO HÁ NADA AQUI! VOCÊ SE FUD3U" })));
 
 export {
   server,

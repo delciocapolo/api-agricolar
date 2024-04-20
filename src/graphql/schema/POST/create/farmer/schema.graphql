@@ -132,15 +132,9 @@ type Query {
 }
 
 type Mutation {
-  createFarmer(
-    fazendeiro: FazendeiroInput
-    localizacao: LocalizacaoInput
-  ): FazendeiroSchema
+  createFarmer( fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroSchema
   createFarm(id_fazendeiro: String!, farm: FazendaInput): FarmSchema
-  createProduct(
-    credentials: CredentialsInput
-    product: ProductInput
-  ): ProductSchema
+  createProduct(credentials: CredentialsInput, product: ProductInput ): ProductSchema
   sellProduct(sellProduct: SellProduct): ProductSchema
   createEmployee(createEmployee: CreateEmployee): CreateEmployeeSchema
 }

@@ -18,7 +18,7 @@ model Fazendeiro {
   email                   String   @unique @db.VarChar(100)
   quantidade_fazendas     Int      @default(1) @map("count_farmer") @db.SmallInt
   sexo                    Sexo     @map("sex")
-  data_nascimento         DateTime @map("born_on") @db.Date
+  data_nascimento         Int      @map("born_on") @db.MediumInt
   caminho_foto_fazendeiro String?  @db.VarChar(350)
   role                    Role
   createdAt               DateTime @default(now())
@@ -151,7 +151,8 @@ model Consumidor {
   numero_telefone         String   @db.VarChar(15)
   senha                   String   @map("password") @db.VarChar(300)
   sexo                    Sexo     @map("sex")
-  data_nascimento         DateTime @map("born_on") @db.Date
+  // data_nascimento         DateTime @map("born_on") @db.Date
+  data_nascimento         Int      @map("born_on") @db.MediumInt
   caminho_foto_consumidor String?  @map("path_photo") @db.VarChar(250)
   numero_compras          Int?     @default(0) @map("count_purchases") @db.UnsignedMediumInt
   role                    Role

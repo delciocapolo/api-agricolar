@@ -1,9 +1,11 @@
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import JWT from "jsonwebtoken";
 import { JWT_SECRET } from "./EnvConfigs";
+import { DatabaseConnectionGET } from "../model/databaseConnection";
 
-export function generateToken(req: Request, res: Response) {
-    const {email, role} = req['body'];
+const database = new DatabaseConnectionGET();
+export function generateToken(req: Request, res: Response): string {
+    const { email, role } = req['body'];
 
     const payload = {
         username: email.split('@')[0],
@@ -16,8 +18,8 @@ export function generateToken(req: Request, res: Response) {
         expiresIn: Math.pow(60, 2) * 5
     });
 
-    res.setHeader('Authorization', `Bearer ${token}`);
+    // res.setHeader('Authorization', `Bearer ${token}`);
     return token;
 }
 
-export function getToken() {}
+export function getToken() { }

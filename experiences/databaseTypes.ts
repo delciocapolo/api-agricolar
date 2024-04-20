@@ -3,7 +3,7 @@ import path from "node:path";
 import * as url from 'url';
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-const schemaPath = path.resolve(__dirname, '..', '..', '..', 'prisma', 'schema.prisma');
+const schemaPath = path.resolve(__dirname, '..', 'prisma', 'schema.prisma');
 const stringSchemaPrisma = fs.readFileSync(schemaPath, {
     encoding: 'utf-8'
 }) satisfies string;

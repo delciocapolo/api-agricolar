@@ -15,12 +15,18 @@ import type {
   CreateProductType,
   SellProductType,
 } from "./@types/type";
+import { debuglog } from "util";
+
+const log = debuglog('database');
 
 export class DatabaseConnectionPOST {
   private prisma: PrismaClient;
+
   constructor() {
     this.prisma = new PrismaClient();
-    this.prisma.$connect();
+    this.prisma.$connect().then(_ => {
+      log(`Conexão com Banco de Dados [${DatabaseConnectionPOST.name}] estabelecida com sucesso`);
+    });
   }
   // metodos para consumidores
   async createCostumer(
@@ -367,6 +373,9 @@ export class DatabaseConnectionGET {
   private prisma: PrismaClient;
   constructor() {
     this.prisma = new PrismaClient();
+    this.prisma.$connect().then(_ => {
+      log(`Conexão com Banco de Dados [${DatabaseConnectionGET.name}] estabelecida com sucesso`);
+    });
   }
 
   // GET PUBLICS
@@ -686,7 +695,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried create Clients from the Farm " +
-          id_fazenda
+        id_fazenda
       );
       console.error(error);
     } finally {
@@ -829,7 +838,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Statistics from the Farm " +
-          id_fazenda
+        id_fazenda
       );
       console.error(error);
     } finally {
@@ -874,7 +883,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Favorite Product from the Client " +
-          id_consumidor
+        id_consumidor
       );
       console.error(error);
     } finally {
@@ -918,7 +927,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Cart from the Client " +
-          id_consumidor
+        id_consumidor
       );
       console.error(error);
     } finally {
@@ -952,7 +961,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Favorite Farm from the Client " +
-          id_consumidor
+        id_consumidor
       );
       console.error(error);
     } finally {

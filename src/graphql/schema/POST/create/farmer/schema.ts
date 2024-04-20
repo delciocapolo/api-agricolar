@@ -29,28 +29,30 @@ type EmployeeTypeSchema = {
   id_fazenda: string;
   id_consumidor: string;
 }
-type CreateFarmer = { 
-  fazendeiro: Fazendeiro; 
-  localizacao: Localizacao 
+type CreateFarmer = {
+  fazendeiro: Fazendeiro;
+  localizacao: Localizacao
 }
-type CreateFarm = { 
-  id_fazendeiro: string; 
-  fazenda: Fazenda; 
+type CreateFarm = {
+  id_fazendeiro: string;
+  fazenda: Fazenda;
 }
 
 const database = new DatabaseConnectionPOST();
 export const resolvers = {
   Date: DATESCALAR,
   Query: {
-    done: () => console.log("Create user route defined!"),
+    done() {
+      return "Create user route defined!"
+    },
   },
   Mutation: {
     createFarmer: async (
       _: any,
-      {fazendeiro, localizacao}: CreateFarmer,
+      { fazendeiro, localizacao }: CreateFarmer,
       ctx: ctxType
     ) => {
-      const token = ctx.token.createToken;
+      const token = ctx.token;
       console.log(token);
 
       const response = await database.createFarmer(
@@ -67,9 +69,9 @@ export const resolvers = {
     },
     createFarm: async (
       _: any,
-      {fazenda, id_fazendeiro}: CreateFarm
+      { fazenda, id_fazendeiro }: CreateFarm
     ) => {
-      const response = await database.createFarm( { id_fazendeiro }, fazenda );
+      const response = await database.createFarm({ id_fazendeiro }, fazenda);
 
       if (!response) {
         console.error("An Error, trying create [Farm]");
@@ -79,30 +81,30 @@ export const resolvers = {
       return response;
     },
     createProduct: async (
-        _: any,
-        {credentials, produto}: CreateProductTypeSchema
+      _: any,
+      { credentials, produto }: CreateProductTypeSchema
     ) => {
-        const response = await database.createProduct(
-            { 
-              id_fazenda: credentials.id_fazenda,
-              categoria: credentials.categoria
-            },
-            produto
-        );
+      const response = await database.createProduct(
+        {
+          id_fazenda: credentials.id_fazenda,
+          categoria: credentials.categoria
+        },
+        produto
+      );
 
-        if (!response) {
-          console.error("An Error, trying create [Product]");
-          return;
-        }
+      if (!response) {
+        console.error("An Error, trying create [Product]");
+        return;
+      }
 
-        return response;
+      return response;
     },
     sellProduct: async (
       _: any,
-      {id_fazenda, id_produto}: SellProductTypeSchema
+      { id_fazenda, id_produto }: SellProductTypeSchema
     ) => {
       const response = await database.sellProduct({
-        id_fazenda, 
+        id_fazenda,
         id_produto
       });
 
@@ -115,7 +117,7 @@ export const resolvers = {
     },
     createEmployee: async (
       _: any,
-      {id_consumidor,id_fazenda}: EmployeeTypeSchema
+      { id_consumidor, id_fazenda }: EmployeeTypeSchema
     ) => {
       const response = await database.createEmployee({
         id_fazenda,

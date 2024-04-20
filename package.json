@@ -5,7 +5,7 @@
   "main": "src/index.mts",
   "scripts": {
     "test": "jest",
-    "dev": "NODE_DEBUG=server,main node --watch --env-file=.env --import tsx ./src/index.mts"
+    "dev": "NODE_DEBUG=server,main,database node --watch --env-file=.env --import tsx ./src/index.mts"
   },
   "type": "module",
   "repository": {

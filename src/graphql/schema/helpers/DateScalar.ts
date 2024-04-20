@@ -2,8 +2,11 @@ import { GraphQLScalarType, Kind } from "graphql";
 
 const DATESCALAR = new GraphQLScalarType({
   name: "Date",
-  description: "Formato Date, customizado pro GrapQL",
+  description: "Formato Date, customizado para o GrapQL",
   serialize(value) {
+    // Serializes an internal value to include in a response.
+    // Serializa um valor interno(o que vem do [parseValue]) to incluir na resposta.
+    // basicamente, o valor que eh retornado para o GraphQL
     if (value instanceof Date) {
       return value.getTime();
     }
@@ -13,7 +16,7 @@ const DATESCALAR = new GraphQLScalarType({
   parseValue(value) {
     // Parses an externally provided value to use as an input.
     // converte um valor externo(informado pelo usuario)
-    // para usar como uma entrada
+    // para usar como uma entrada, para o [serialize]
     if (typeof value === "number") {
       return new Date(value);
     }

@@ -154,13 +154,8 @@ type Query {
 }
 
 type Mutation {
-  createCostumer(
-    consumidor: ConsumidorInput
-    localizacao: LocalizacaoInput
-  ): ConsumidorSchema
+  createCostumer(consumidor: ConsumidorInput, localizacao: LocalizacaoInput): ConsumidorSchema
   createWishList(wishList: WishListInput): WishListSchema
   createCart(carrinho: CriarCarrinhoInput): CarrinhoSchema
-  createFavoriteFarm(
-    fazendaFavorita: FazendaFavoritaInput
-  ): FazendaFavoritaSchema
+  createFavoriteFarm(fazendaFavorita: FazendaFavoritaInput): FazendaFavoritaSchema
 }
