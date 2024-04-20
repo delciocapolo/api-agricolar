@@ -32,7 +32,9 @@ export const resolvers = {
         ) => {
             const token = ctx.token;
             console.log(token);
-            const costumer = await database.createCostumer({ ...consumidor, data_nascimento: new Date(consumidor.data_nascimento).getTime() }, localizacao);
+            const temp_data = { ...consumidor, data_nascimento: new Date(consumidor.data_nascimento).getTime() };
+            console.log(temp_data);
+            const costumer = await database.createCostumer(temp_data, localizacao);
 
             return costumer;
         },

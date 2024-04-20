@@ -2,12 +2,17 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { gql } from "graphql-tag";
 import { fileURLToPath } from "node:url";
-
+// local modules
 import DATESCALAR from "../../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../../model/databaseConnection";
 import { ctxType } from "../../../helpers/ContextType";
-import { CreateProductType } from "../../../../../model/@types/type";
-import { Fazenda, Fazendeiro, Localizacao, Produto } from "../../../../../model/@types/types";
+import {
+  FarmerInputType,
+  EmplyeeInputType,
+  FarmInputType,
+  ProductTypeInput,
+  SellProductInputType
+} from "../@types/farmer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(
@@ -15,28 +20,6 @@ export const typeDefs = gql(
     encoding: "utf-8",
   })
 );
-
-// Types
-type CreateProductTypeSchema = {
-  credentials: CreateProductType,
-  produto: Produto;
-}
-type SellProductTypeSchema = {
-  id_fazenda: string;
-  id_produto: string;
-}
-type EmployeeTypeSchema = {
-  id_fazenda: string;
-  id_consumidor: string;
-}
-type CreateFarmer = {
-  fazendeiro: Fazendeiro;
-  localizacao: Localizacao
-}
-type CreateFarm = {
-  id_fazendeiro: string;
-  fazenda: Fazenda;
-}
 
 const database = new DatabaseConnectionPOST();
 export const resolvers = {
@@ -49,16 +32,13 @@ export const resolvers = {
   Mutation: {
     createFarmer: async (
       _: any,
-      { fazendeiro, localizacao }: CreateFarmer,
+      { fazendeiro, localizacao }: FarmerInputType,
       ctx: ctxType
     ) => {
       const token = ctx.token;
       console.log(token);
 
-      const response = await database.createFarmer(
-        fazendeiro,
-        localizacao
-      );
+      const response = await database.createFarmer({ fazendeiro, localizacao });
 
       if (!response) {
         console.error("An Error, trying create [Farmer]");
@@ -69,9 +49,9 @@ export const resolvers = {
     },
     createFarm: async (
       _: any,
-      { fazenda, id_fazendeiro }: CreateFarm
+      { fazenda, id_fazendeiro }: FarmInputType
     ) => {
-      const response = await database.createFarm({ id_fazendeiro }, fazenda);
+      const response = await database.createFarm({ id_fazendeiro, fazenda });
 
       if (!response) {
         console.error("An Error, trying create [Farm]");
@@ -82,15 +62,13 @@ export const resolvers = {
     },
     createProduct: async (
       _: any,
-      { credentials, produto }: CreateProductTypeSchema
+      { id_fazenda, nome_categoria, produto }: ProductTypeInput
     ) => {
-      const response = await database.createProduct(
-        {
-          id_fazenda: credentials.id_fazenda,
-          categoria: credentials.categoria
-        },
+      const response = await database.createProduct({
+        id_fazenda,
+        nome_categoria,
         produto
-      );
+      });
 
       if (!response) {
         console.error("An Error, trying create [Product]");
@@ -101,10 +79,10 @@ export const resolvers = {
     },
     sellProduct: async (
       _: any,
-      { id_fazenda, id_produto }: SellProductTypeSchema
+      { id_consumidor, id_produto }: SellProductInputType
     ) => {
       const response = await database.sellProduct({
-        id_fazenda,
+        id_consumidor,
         id_produto
       });
 
@@ -117,7 +95,7 @@ export const resolvers = {
     },
     createEmployee: async (
       _: any,
-      { id_consumidor, id_fazenda }: EmployeeTypeSchema
+      { id_consumidor, id_fazenda }: EmplyeeInputType
     ) => {
       const response = await database.createEmployee({
         id_fazenda,

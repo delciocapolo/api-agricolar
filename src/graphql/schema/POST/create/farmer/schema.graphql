@@ -6,22 +6,9 @@ enum Sexo {
 }
 
 enum Role {
-  Farmer
-  Costumer
+  Fazendeiro
+  Consumidor
   Employee
-}
-
-type FazendeiroSchema {
-  id_fazendeiro: ID
-  nome_fazendeiro: String
-  email: String
-  quantidade_fazendas: Int
-  sexo: Sexo
-  data_nascimento: Date
-  role: Role
-  createAt: Date
-  updatedAt: Date
-  localizacao_id_localizacao: String
 }
 
 type LocalizacaoSchema {
@@ -90,10 +77,23 @@ type CreateEmployeeSchema {
 input FazendeiroInput {
   nome_fazendeiro: String
   email: String
+  caminho_foto_fazendeiro: String
+  sexo: Sexo
+  data_nascimento: String
+}
+
+type FazendeiroSchema {
+  id_fazendeiro: ID
+  nome_fazendeiro: String
+  email: String
   quantidade_fazendas: Int
   sexo: Sexo
   data_nascimento: Date
+  caminho_foto_fazendeiro: String
   role: Role
+  createAt: Date
+  updatedAt: Date
+  localizacao_id_localizacao: String
 }
 
 input LocalizacaoInput {
@@ -132,7 +132,7 @@ type Query {
 }
 
 type Mutation {
-  createFarmer( fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroSchema
+  createFarmer(fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroSchema
   createFarm(id_fazendeiro: String!, farm: FazendaInput): FarmSchema
   createProduct(credentials: CredentialsInput, product: ProductInput ): ProductSchema
   sellProduct(sellProduct: SellProduct): ProductSchema

@@ -14,9 +14,11 @@ const DATESCALAR = new GraphQLScalarType({
     throw new Error('GraphQL Date Scalar parser experava um objecto "Date"');
   },
   parseValue(value) {
+    // eh o PRIMEIRO PASS
+
     // Parses an externally provided value to use as an input.
     // converte um valor externo(informado pelo usuario)
-    // para usar como uma entrada, para o [serialize]
+    // para usar como uma entrada
     if (typeof value === "number") {
       return new Date(value);
     }

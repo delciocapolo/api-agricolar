@@ -16,6 +16,7 @@ import type {
   SellProductType,
 } from "./@types/type";
 import { debuglog } from "util";
+import { FarmInputType, FarmerInputType, ProductTypeInput, SellProductInputType } from "../graphql/schema/POST/create/@types/farmer";
 
 const log = debuglog('database');
 
@@ -49,7 +50,6 @@ export class DatabaseConnectionPOST {
           sexo: consumidor.sexo,
           caminho_foto_consumidor: consumidor.caminho_foto_consumidor,
           data_nascimento: consumidor.data_nascimento,
-          role: consumidor.role,
           localizacao: {
             create: {
               cidade: localizacao.cidade,
@@ -67,7 +67,7 @@ export class DatabaseConnectionPOST {
       console.error("CREATE COSTUMER, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -84,7 +84,7 @@ export class DatabaseConnectionPOST {
       console.error("CREATE WISH LIST, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -102,7 +102,7 @@ export class DatabaseConnectionPOST {
       console.error("ADD TO CART, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -123,16 +123,13 @@ export class DatabaseConnectionPOST {
       console.error("CREATE FAVORITE FARM, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
   // Implementacao do CRUD para fazendeiro
 
-  async createFarmer(
-    fazendeiro: Fazendeiro | Fazendeiro[],
-    localizacao: Localizacao
-  ) {
+  async createFarmer({ fazendeiro, localizacao }: FarmerInputType) {
     try {
       if (Array.isArray(fazendeiro)) {
         const data = await this.prisma["fazendeiro"].createMany({
@@ -144,10 +141,9 @@ export class DatabaseConnectionPOST {
         data: {
           nome_fazendeiro: fazendeiro.nome_fazendeiro,
           email: fazendeiro.email,
-          data_nascimento: fazendeiro.data_nascimento,
+          data_nascimento: new Date(fazendeiro.data_nascimento),
           sexo: fazendeiro.sexo,
           caminho_foto_fazendeiro: fazendeiro.caminho_foto_fazendeiro,
-          role: fazendeiro.role,
           localizacao: {
             create: {
               cidade: localizacao.cidade,
@@ -161,11 +157,11 @@ export class DatabaseConnectionPOST {
       console.error("CREATE FARMER, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
-  async createFarm({ id_fazendeiro }: CreateFarmType, fazenda: Fazenda) {
+  async createFarm({ id_fazendeiro, fazenda }: FarmInputType) {
     try {
       const existsFarmer = await this.prisma["fazendeiro"].findUnique({
         where: {
@@ -194,14 +190,11 @@ export class DatabaseConnectionPOST {
       console.error("CREATE FARMER, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
-  async createProduct(
-    { id_fazenda, categoria }: CreateProductType,
-    produto: Produto
-  ) {
+  async createProduct({ id_fazenda, nome_categoria, produto }: ProductTypeInput) {
     try {
       const existsFarmer = await this.prisma["fazenda"].findUnique({
         where: {
@@ -224,10 +217,10 @@ export class DatabaseConnectionPOST {
           categoria: {
             connectOrCreate: {
               where: {
-                nome_categoria: categoria.nome_categoria,
+                nome_categoria,
               },
               create: {
-                nome_categoria: categoria.nome_categoria,
+                nome_categoria,
               },
             },
           },
@@ -265,25 +258,25 @@ export class DatabaseConnectionPOST {
       console.error("CREATE PRODUCT, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
-  async sellProduct({ id_fazenda, id_produto }: SellProductType) {
+  async sellProduct({ id_consumidor, id_produto }: SellProductInputType) {
     try {
-      const farmerExists = await this.prisma["fazenda"].findUnique({
+      const farmerExists = await this.prisma["consumidor"].findUnique({
         where: {
-          id_fazenda,
+          id_consumidor,
         },
       });
 
-      const productExists = await this.prisma['produto'].findUnique({
+      const costumerExists = await this.prisma['produto'].findUnique({
         where: {
           id_produto
         }
       });
 
-      if (farmerExists === null && productExists === null) {
+      if (farmerExists === null || costumerExists === null) {
         console.error("A FAZENDA NAO EXISTE");
         return;
       }
@@ -297,12 +290,20 @@ export class DatabaseConnectionPOST {
         },
       });
 
+      await this.prisma['monitoramento'].create({
+        data: {
+          consumidor_id_consumirdor: id_consumidor,
+          produto_id_produto: data.id_produto,
+          fazenda_id_fazenda: data.fazenda_id_fazenda
+        }
+      });
+
       return data;
     } catch (error) {
       console.error("SELL PRODUCT ERROR, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -364,7 +365,7 @@ export class DatabaseConnectionPOST {
       console.error("CREATE EMPLOYEE, [ERROR]: ");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 }
@@ -393,7 +394,7 @@ export class DatabaseConnectionGET {
       console.error("ERROR TO GET USERS");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -411,7 +412,7 @@ export class DatabaseConnectionGET {
       console.error("ERROR TO GET FARMER");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -429,7 +430,7 @@ export class DatabaseConnectionGET {
       console.error("ERROR TO GET PRODUCT");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -475,7 +476,7 @@ export class DatabaseConnectionGET {
       console.error("ERROR TO GET SOLD PRODUCTS");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -498,7 +499,7 @@ export class DatabaseConnectionGET {
       console.error("ERROR TO GET PRODUCT");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -523,7 +524,7 @@ export class DatabaseConnectionGET {
       console.error("Can't Get Products from farm " + id_fazenda);
       console.error();
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -552,7 +553,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -581,7 +582,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -607,7 +608,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -631,7 +632,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -651,7 +652,7 @@ export class DatabaseConnectionGET {
       console.error("An Error Ocurred when i tried get Categories");
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -699,7 +700,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -753,7 +754,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -842,7 +843,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -887,7 +888,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -931,7 +932,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 
@@ -965,7 +966,7 @@ export class DatabaseConnectionGET {
       );
       console.error(error);
     } finally {
-      this.prisma.$disconnect();
+      await this.prisma.$disconnect();
     }
   }
 }
