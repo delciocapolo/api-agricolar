@@ -44,7 +44,7 @@ export class DatabaseConnectionPOST {
 
       if (exists !== null) {
         const obj = {
-          message: "User already exists",
+          message: "Costumer already exists",
         };
         console.error(obj);
         return { ...obj };
@@ -154,11 +154,11 @@ export class DatabaseConnectionPOST {
       });
 
       if (exists !== null) {
-        const obj = {
-          message: "User already exists",
+        const object_error = {
+          message: "O FAZENDEIRO JA EXISTE",
+          path: "createFarmer method's class"
         };
-        console.error(obj);
-        return { ...obj };
+        return object_error;
       }
 
       const data = await this.prisma["fazendeiro"].create({
@@ -186,25 +186,41 @@ export class DatabaseConnectionPOST {
     }
   }
 
-  async createFarm({ id_fazendeiro, fazenda }: FarmInputType) {
+  async createFarm({ id_fazendeiro, farm }: FarmInputType) {
     try {
       const existsFarmer = await this.prisma["fazendeiro"].findUnique({
         where: {
-          id_fazendeiro,
+          id_fazendeiro
         },
+      });
+      const existsFarm = await this.prisma['fazenda'].findUnique({
+        where: {
+          nome_fazenda: farm.nome_fazenda
+        }
       });
 
       if (existsFarmer === null) {
-        console.error("O FAZENDEIRO NAO EXISTE");
-        return;
+        const object_error = {
+          message: "O FAZENDEIRO NAO EXISTE",
+          path: "createFarm method's class"
+        };
+        return object_error;
+      }
+
+      if (existsFarm !== null) {
+        const object_error = {
+          message: `A ${farm.nome_fazenda} FAZENDA JA EXISTE`,
+          path: "createFarm method's class"
+        };
+        return object_error;
       }
 
       const data = await this.prisma["fazenda"].create({
         data: {
-          nome_fazenda: fazenda.nome_fazenda,
+          nome_fazenda: farm.nome_fazenda,
           fazendeiro: {
             connect: {
-              id_fazendeiro,
+              id_fazendeiro
             },
           },
         },
@@ -212,7 +228,7 @@ export class DatabaseConnectionPOST {
 
       return data;
     } catch (error) {
-      console.error("CREATE FARMER, [ERROR]: ");
+      console.error("CREATE FARM, [ERROR]: ");
       console.error(error);
     } finally {
       await this.prisma.$disconnect();
@@ -228,8 +244,11 @@ export class DatabaseConnectionPOST {
       });
 
       if (existsFarmer === null) {
-        console.error("A FAZENDA NAO EXISTE");
-        return;
+        const object_error = {
+          message: "A FAZENDA NAO EXISTE",
+          path: ['createProduct', 'DatabaseConnection']
+        };
+        return object_error;
       }
 
       const data = await this.prisma["produto"].create({
@@ -254,27 +273,6 @@ export class DatabaseConnectionPOST {
               id_fazenda,
             },
           },
-        },
-        select: {
-          id_produto: true,
-          nome_produto: true,
-          descricao: true,
-          categoria: {
-            select: {
-              id_categoria: true,
-              nome_categoria: true
-            },
-          },
-          caminho_foto_produto: true,
-          createdAt: true,
-          disponivel: true,
-          preco_produto: true,
-          servico_entrega_disponivel: true,
-          fazenda: {
-            select: {
-              nome_fazenda: true,
-            }
-          }
         }
       });
 

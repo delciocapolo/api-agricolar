@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "API ofical do site agricolar",
   "scripts": {
-    "test": "npx tsc && node --env-file=.env.test --test --experimental-test-coverage",
+    "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
     "dev": "NODE_DEBUG=server,main,database node --watch --env-file=.env --import tsx ./src/index.mts"
   },
   "type": "module",
@@ -49,6 +49,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.2",
     "@types/supertest": "^6.0.2",
+    "coverage": "^0.4.1",
     "loadtest": "^8.0.9",
     "prisma": "^5.12.1",
     "supertest": "^6.3.4",

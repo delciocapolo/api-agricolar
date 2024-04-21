@@ -19,8 +19,8 @@ type LocalizacaoSchema {
 }
 
 type FarmSchema {
-  id_fazenda: ID
-  nome_fazenda: String
+  id_fazenda: ID!
+  nome_fazenda: String!
   createAt: Date
   updatedAt: Date
   fazendeiro_id_fazendeiro: String
@@ -49,7 +49,7 @@ type CategoriaSchema {
 }
 
 type ProductSchema {
-  id_produto: ID
+  id_produto: ID!
   nome_produto: String
   preco_produto: Float
   categoria_id_categoria: Int
@@ -103,19 +103,15 @@ input LocalizacaoInput {
 }
 
 input FazendaInput {
-  nome_fazenda: String
+  nome_fazenda: String!
 }
-input CredentialsInput {
-  id_fazend: ID!
-  nome_categoria: String!
-}
+
 input ProductInput {
   nome_produto: String
   preco_produto: Float
   caminho_foto_produto: String
   descricao: String
   servico_entrega_disponivel: Boolean
-  disponivel: Boolean
 }
 
 input SellProduct {
@@ -135,7 +131,7 @@ type Query {
 type Mutation {
   createFarmer(fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroSchema
   createFarm(id_fazendeiro: String!, farm: FazendaInput): FarmSchema
-  createProduct(credentials: CredentialsInput, product: ProductInput ): ProductSchema
+  createProduct(id_fazenda: String!, nome_categoria: String!, produto: ProductInput): ProductSchema
   sellProduct(sellProduct: SellProduct): ProductSchema
   createEmployee(createEmployee: CreateEmployee): CreateEmployeeSchema
 }

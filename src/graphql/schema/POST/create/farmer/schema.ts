@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { gql } from "graphql-tag";
 import { fileURLToPath } from "node:url";
 import bcrypt from "bcrypt";
+import { Fazenda, Produto } from "@prisma/client";
 // local modules
 import DATESCALAR from "../../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../../model/databaseConnection";
@@ -32,13 +33,8 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createFarmer: async (
-      _: any,
-      { fazendeiro, localizacao }: FarmerInputType,
-      ctx: ctxType
-    ) => {
-      const token = ctx.token;
-      console.log(token);
+    createFarmer: async (_: any, { fazendeiro, localizacao }: FarmerInputType, ctx: ctxType) => {
+      const __ = ctx.token;
 
       const that = { ...fazendeiro };
       const salt = bcrypt.genSaltSync(BCRYPT_SALT);
@@ -53,23 +49,33 @@ export const resolvers = {
 
       return response;
     },
-    createFarm: async (
-      _: any,
-      { fazenda, id_fazendeiro }: FarmInputType
-    ) => {
-      const response = await database.createFarm({ id_fazendeiro, fazenda });
+    createFarm: async (_: any, { id_fazendeiro, farm }: FarmInputType, ctx: ctxType) => {
+      try {
+        if (!farm || typeof farm !== 'object') {
+          throw new Error('Objeto \"fazenda\" não foi fornecido corretamente.');
+        }
+        const __ = ctx.token;
+        const row = await database.createFarm({ farm, id_fazendeiro });
 
-      if (!response) {
-        console.error("An Error, trying create [Farm]");
-        return;
+        if (!row) {
+          console.error("RECORD WAS NOT INSERTED IN DATABASE");
+          return;
+        }
+
+        if (Object.keys(row).includes('message')) {
+          console.error(row);
+          return;
+        }
+
+        return row as Fazenda;
+      } catch (error) {
+        console.error('AN ERROR OCCOURS, TRYING CREATE FARM: ');
+        console.error(error);
       }
-
-      return response;
     },
-    createProduct: async (
-      _: any,
-      { id_fazenda, nome_categoria, produto }: ProductTypeInput
-    ) => {
+    createProduct: async (_: any, { id_fazenda, nome_categoria, produto }: ProductTypeInput) => {
+      console.log(produto);
+
       const response = await database.createProduct({
         id_fazenda,
         nome_categoria,
@@ -81,12 +87,14 @@ export const resolvers = {
         return;
       }
 
-      return response;
+      if (Object.keys(response).includes('message')) {
+        console.log(response);
+        return;
+      }
+
+      response as Produto;
     },
-    sellProduct: async (
-      _: any,
-      { id_consumidor, id_produto }: SellProductInputType
-    ) => {
+    sellProduct: async (_: any, { id_consumidor, id_produto }: SellProductInputType, ctx: ctxType) => {
       const response = await database.sellProduct({
         id_consumidor,
         id_produto
@@ -99,10 +107,7 @@ export const resolvers = {
 
       return response;
     },
-    createEmployee: async (
-      _: any,
-      { id_consumidor, id_fazenda }: EmplyeeInputType
-    ) => {
+    createEmployee: async (_: any, { id_consumidor, id_fazenda }: EmplyeeInputType, ctx: ctxType) => {
       const response = await database.createEmployee({
         id_fazenda,
         id_consumidor,

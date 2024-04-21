@@ -17,9 +17,9 @@ export type FarmerInputType = {
 
 export type FarmInputType = {
     id_fazendeiro: string;
-    fazenda: {
+    farm: {
         nome_fazenda: string
-    }
+    };
 }
 
 export type EmplyeeInputType = {
