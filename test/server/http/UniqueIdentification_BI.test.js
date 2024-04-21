@@ -15,5 +15,12 @@ describe('Availability external services', () => {
         const response = await fetch(`http://localhost:5055/v1/bi/${BI_NUMBER}`, { method: 'GET' });
         strictEqual(response.status, 202);
     });
+    it('should return all fields necessary', async () => {
+        const response = await fetch(`http://localhost:5055/v1/bi/${BI_NUMBER}`, { method: 'GET' });
+        const data = await response.json();
+        const arrFields = ['nome', 'data_nasc', 'genero'];
+        const fields = Object.keys(data).filter((key) => arrFields.includes(key));
+        strictEqual(fields.length, 3, new Error('Um dos campos retornados pela consulta na API, esta em falta'));
+    });
 });
 //# sourceMappingURL=UniqueIdentification_BI.test.js.map

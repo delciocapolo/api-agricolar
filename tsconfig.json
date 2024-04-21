@@ -6,7 +6,7 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ESNext",
+    "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
@@ -15,11 +15,11 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     /* If transpiling with TypeScript: */
-    "moduleResolution": "Node16",
-    "module": "Node16",
+    "moduleResolution": "Bundler",
+    "module": "Preserve",
     // "outDir": "dist",
-    "sourceMap": true,
     // "noEmit": true,
+    "sourceMap": true,
     /* If your code doesn't run in the DOM: */
     "lib": [
       "es2022"

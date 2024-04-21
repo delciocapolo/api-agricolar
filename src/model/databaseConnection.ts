@@ -35,6 +35,21 @@ export class DatabaseConnectionPOST {
         });
         return data;
       }
+
+      const exists = await this.prisma['consumidor'].findUnique({
+        where: {
+          email: consumidor.email
+        }
+      });
+
+      if (exists !== null) {
+        const obj = {
+          message: "User already exists",
+        };
+        console.error(obj);
+        return { ...obj };
+      }
+
       const data = await this.prisma["consumidor"].create({
         data: {
           nome_consumidor: consumidor.nome_consumidor,
@@ -131,6 +146,21 @@ export class DatabaseConnectionPOST {
         });
         return data;
       }
+
+      const exists = await this.prisma['fazendeiro'].findUnique({
+        where: {
+          email: fazendeiro.email
+        }
+      });
+
+      if (exists !== null) {
+        const obj = {
+          message: "User already exists",
+        };
+        console.error(obj);
+        return { ...obj };
+      }
+
       const data = await this.prisma["fazendeiro"].create({
         data: {
           nome_fazendeiro: fazendeiro.nome_fazendeiro,
