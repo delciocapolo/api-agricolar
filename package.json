@@ -1,10 +1,10 @@
 {
   "name": "apiagricolar",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "API ofical do site agricolar",
   "scripts": {
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
-    "dev": "NODE_DEBUG=server,main,database node --watch --env-file=.env --import tsx ./src/index.mts"
+    "dev": "NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.mts"
   },
   "type": "module",
   "repository": {

@@ -3,10 +3,10 @@ import { gql } from "graphql-tag";
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Consumidor, Localizacao } from "@prisma/client";
-import { ctxType } from "../../../helpers/ContextType";
-import { CostumerAndFarmType, CostumerAndProductType } from "../../../../../model/@types/type";
-import DATESCALAR from "../../../helpers/DateScalar";
-import { DatabaseConnectionPOST } from "../../../../../model/databaseConnection";
+import { ctxType } from "../../helpers/ContextType";
+import { CostumerAndFarmType, CostumerAndProductType } from "../../../../model/@types/type";
+import DATESCALAR from "../../helpers/DateScalar";
+import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(readFileSync(path.resolve(__dirname, "schema.graphql"), {

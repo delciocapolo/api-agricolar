@@ -8,11 +8,11 @@
             [ ] https://microservice.agricolar.com/costumer/costumerID/transition
         
         | para fazendeiro: endpoints:
-            [ ] https://microservice.agricolar.com/farmer/create
-            [ ] https://microservice.agricolar.com/farmer/createFarm
-            [ ] https://microservice.agricolar.com/farmer/farmID/product
-            [ ] https://microservice.agricolar.com/farmer/farmID/product/sold
-            [ ] https://microservice.agricolar.com/farmer/farmID/createEmployee
+            [x] https://microservice.agricolar.com/farmer/create
+            [x] https://microservice.agricolar.com/farmer/createFarm
+            [x] https://microservice.agricolar.com/farmer/farmID/product
+            [x] https://microservice.agricolar.com/farmer/farmID/product/sold
+            [x] https://microservice.agricolar.com/farmer/farmID/createEmployee
 
     | para GET
         | endpoints publicos: 

@@ -4,6 +4,7 @@ import { strictEqual } from "node:assert";
 import env from "env-var";
 import fetch from "node-fetch";
 
+// ping 188.165.138.196
 const BI_NUMBER = env.get('BI_NUMBER').required().asString();
 const urlBase = `https://digital.ao/ao/actions/bi.ajcall.php?bi=${BI_NUMBER}`;
 

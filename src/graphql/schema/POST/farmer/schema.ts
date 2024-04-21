@@ -5,17 +5,18 @@ import { fileURLToPath } from "node:url";
 import bcrypt from "bcrypt";
 import { Fazenda, Produto } from "@prisma/client";
 // local modules
-import DATESCALAR from "../../../helpers/DateScalar";
-import { DatabaseConnectionPOST } from "../../../../../model/databaseConnection";
-import { ctxType } from "../../../helpers/ContextType";
+import DATESCALAR from "../../helpers/DateScalar";
+import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
+import { ctxType } from "../../helpers/ContextType";
 import {
   FarmerInputType,
   EmplyeeInputType,
   FarmInputType,
   ProductTypeInput,
-  SellProductInputType
+  SellProductInputType,
+  EmployeeTypeSchema
 } from "../@types/farmer";
-import { BCRYPT_SALT } from "../../../../../utils/EnvConfigs";
+import { BCRYPT_SALT } from "../../../../utils/EnvConfigs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(
@@ -74,8 +75,6 @@ export const resolvers = {
       }
     },
     createProduct: async (_: any, { id_fazenda, nome_categoria, produto }: ProductTypeInput) => {
-      console.log(produto);
-
       const response = await database.createProduct({
         id_fazenda,
         nome_categoria,
@@ -92,9 +91,9 @@ export const resolvers = {
         return;
       }
 
-      response as Produto;
+      return response as Produto;
     },
-    sellProduct: async (_: any, { id_consumidor, id_produto }: SellProductInputType, ctx: ctxType) => {
+    sellProduct: async (_: any, { id_consumidor, id_produto }: SellProductInputType) => {
       const response = await database.sellProduct({
         id_consumidor,
         id_produto
@@ -102,24 +101,33 @@ export const resolvers = {
 
       if (!response) {
         console.error("An Error, trying create [Sell Product]");
-        return null;
+        return;
       }
 
-      return response;
+      if (Object.keys(response).includes('message')) {
+        console.error(response);
+        return
+      }
+
+      return response as Produto;
     },
-    createEmployee: async (_: any, { id_consumidor, id_fazenda }: EmplyeeInputType, ctx: ctxType) => {
-      const response = await database.createEmployee({
+    createEmployee: async (_: any, { id_consumidor, id_fazenda }: EmplyeeInputType) => {
+      const row = await database.createEmployee({
         id_fazenda,
         id_consumidor,
-        privilegio: "Employee"
       });
 
-      if (!response) {
+      if (!row) {
         console.error("An Error, trying create [Create Employee]");
         return;
       }
 
-      return response;
+      if (Object.keys(row).includes('message')) {
+        console.error(row);
+        return;
+      }
+
+      return row as EmployeeTypeSchema;
     }
   }
 };

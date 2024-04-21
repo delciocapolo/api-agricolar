@@ -1,3 +1,4 @@
+import { Colaborador, Consumidor, Fazenda } from "@prisma/client";
 import { Role, Sexo } from "./default";
 
 export type FarmerInputType = {
@@ -42,4 +43,7 @@ export type ProductTypeInput = {
         servico_entrega_disponivel: boolean;
     }
 }
-
+export type EmployeeTypeSchema = {
+    entidade: Fazenda;
+    empregado: Consumidor;
+} & Colaborador;

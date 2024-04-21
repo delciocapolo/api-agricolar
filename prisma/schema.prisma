@@ -158,7 +158,6 @@ model Consumidor {
   numero_telefone         String   @db.VarChar(15)
   senha                   String   @map("password") @db.VarChar(300)
   sexo                    Sexo     @map("sex")
-  // data_nascimento         DateTime @map("born_on") @db.Date
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_consumidor String?  @map("path_photo") @db.VarChar(250)
   numero_compras          Int?     @default(0) @map("count_purchases") @db.UnsignedMediumInt
