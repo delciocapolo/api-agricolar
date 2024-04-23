@@ -16,19 +16,20 @@
 
     | para GET
         | endpoints publicos: 
-            [ ] https://microservice.agricolar.com/costumers
-            [ ] https://microservice.agricolar.com/farmers
-            [ ] https://microservice.agricolar.com/products
+            [x] https://microservice.agricolar.com/costumers
+            [x] https://microservice.agricolar.com/farmers
+            [x] https://microservice.agricolar.com/products
 
         | para fazendeiro: endpoints:
-            [ ] https://microservice.agricolar.com/farmer/farmID/product
+            [x] https://microservice.agricolar.com/farmer/farmID/product
             [ ] https://microservice.agricolar.com/farmer/farmID/product/soldId
-            [ ] https://microservice.agricolar.com/farmer/farmID/products
-            [ ] https://microservice.agricolar.com/farmer/farmID/products/solds
-            [ ] https://microservice.agricolar.com/farmer/farmID/products/stock
-            [ ] https://microservice.agricolar.com/farmer/farmID/products/categorieID
+            [x] https://microservice.agricolar.com/farmer/farmID/products
+            [x] https://microservice.agricolar.com/farmer/farmID/products/solds
+            [x] https://microservice.agricolar.com/farmer/farmID/products/stock
+            [x] https://microservice.agricolar.com/farmer/farmID/products/categorieID
             [ ] https://microservice.agricolar.com/farmer/farmID/products/categories
-            [ ] https://microservice.agricolar.com/farmer/farmID/clients
+            [ ] https://microservice.agricolar.com/farmer/farmID/clients/clientID
+            [x] https://microservice.agricolar.com/farmer/farmID/clients
             [ ] https://microservice.agricolar.com/farmer/farmID/statistics
 
         | para consumidores: endpoints:

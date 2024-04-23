@@ -185,6 +185,7 @@ model Monitoramento {
   produto_id_produto String  @map("product_id_product")
 
   consumidor                Consumidor @relation(fields: [consumidor_id_consumirdor], references: [id_consumidor])
+  // FIXME: Corrigir o nome, de |consumidor_id_consumirdor| para |consumidor_id_consumidor|
   consumidor_id_consumirdor String     @map("costumer_id_costumer")
 
   fazenda            Fazenda @relation(fields: [fazenda_id_fazenda], references: [id_fazenda])

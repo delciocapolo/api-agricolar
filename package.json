@@ -1,6 +1,6 @@
 {
   "name": "apiagricolar",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "API ofical do site agricolar",
   "scripts": {
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
