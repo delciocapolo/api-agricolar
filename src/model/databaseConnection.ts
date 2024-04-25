@@ -764,12 +764,19 @@ export class DatabaseConnectionGET {
         },
       });
 
-      if (!farmExists || farmExists === null) {
-        return {
-          message: "This farm doesn't exists",
-          status: false,
-        };
+      let object_error: { message: string; path: string[] } = {
+        message: '',
+        path: ['farmExists', 'DatabaseConnection']
+      };
+
+      if (farmExists === null) {
+        return ({ ...object_error, message: "THIS FARM DOESNOT EXISTS" });
       }
+
+      if (!farmExists) {
+        return ({ ...object_error, message: "AN ERROR OCCOURS TRYING GET FARM" });
+      }
+
 
       return farmExists;
     } catch (error) {
@@ -908,8 +915,6 @@ export class DatabaseConnectionGET {
     }
   }
 
-
-
   async fromFarmGetClients(id_fazenda: string) {
     try {
       const _ = await this.farmExists(id_fazenda);
@@ -926,36 +931,37 @@ export class DatabaseConnectionGET {
 
       const clients = await this.prisma["fazenda"].findMany({
         where: {
-          id_fazenda,
+          id_fazenda
         },
         include: {
           cliente: {
-            include: {
+            select: {
+              id_client: true,
               consumidor: {
                 select: {
+                  id_consumidor: true,
                   nome_consumidor: true,
-                  data_nascimento: true,
                   email: true,
+                  numero_telefone: true,
+                  sexo: true,
+                  data_nascimento: true,
+                  createdAt: true,
+                  caminho_foto_consumidor: true,
                   localizacao: {
                     select: {
                       cidade: true,
-                      provincia: true,
-                    },
-                  },
-                  sexo: true,
-                  numero_telefone: true,
-                  caminho_foto_consumidor: true,
-                },
-              },
-            },
-          },
-        },
+                      provincia: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       });
 
-      const listClint = clients.map((client) => (client.cliente))
-        .map((result, index = result.length) => (result && result[index].consumidor));
-
-      return listClint;
+      const transform = clients.map(({ cliente }) => (cliente));
+      return (transform[0]);
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Clients from the Farm " + id_fazenda
@@ -964,6 +970,57 @@ export class DatabaseConnectionGET {
     } finally {
       await this.prisma.$disconnect();
     }
+  }
+
+  async fromFarmGetClient(id_fazenda: string, id_client: string) {
+    const row = await this.prisma['fazenda'].findUnique({
+      where: {
+        id_fazenda
+      },
+      include: {
+        cliente: {
+          where: {
+            id_client
+          },
+          select: {
+            consumidor: {
+              select: {
+                id_consumidor: true,
+                nome_consumidor: true,
+                email: true,
+                numero_telefone: true,
+                sexo: true,
+                caminho_foto_consumidor: true,
+                localizacao: {
+                  select: {
+                    cidade: true,
+                    provincia: true
+                  },
+                },
+                data_nascimento: true,
+                createdAt: true,
+              }
+            }
+          }
+        }
+      }
+    });
+
+    let object_error: { message: string; path: string[] } = {
+      message: '',
+      path: ['fromFarmGetClient', 'DatabaseConnection']
+    };
+
+    if (!row) {
+      return { ...object_error, message: 'AN ERROR OCCOUR TRYING GET UNIQUE CLIENT' }
+    }
+
+    if (row === null) {
+      return { ...object_error, message: "ESTE CLIENTE NAO EXISTE" };
+    }
+
+    const transform = row.cliente.map(({ consumidor }) => (consumidor));
+    return transform;
   }
 
   async fromFarmGetStatistic(id_fazenda: string) {

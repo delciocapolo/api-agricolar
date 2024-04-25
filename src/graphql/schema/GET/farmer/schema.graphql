@@ -40,7 +40,6 @@ type ConsumidorSchema {
   nome_consumidor: String
   email: String
   numero_telefone: String
-  senha: String
   sexo: Sexo
   data_nascimento: Date
   caminho_foto_consumidor: String
@@ -49,6 +48,11 @@ type ConsumidorSchema {
   createAt: Date
   updatedAt: Date
   localizacao_id_localizacao: ID
+}
+
+type ClientSchema {
+  id_client: ID
+  consumidor: ConsumidorSchema
 }
 
 type LocalizacaoShotSchema {
@@ -66,6 +70,7 @@ type ProductTypeShortSchema {
     produto: ProductShortSchema
 }
 type ConsumidorShortSchema {
+    id_consumidor: ID
     nome_consumidor: String
     email: String
     sexo: Sexo
@@ -73,6 +78,7 @@ type ConsumidorShortSchema {
     numero_compras: Int
     compras: [ProductTypeShortSchema]
     localizacao: LocalizacaoShotSchema
+    createdAt: Date
 }
 
 # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
@@ -89,8 +95,9 @@ type Query {
     products(id_fazenda: ID!): [ProductSchema]
     stock(id_fazenda: ID!): [StockSchema]
     productByCategory(id_categoria: Int!): [ProductSchema]
+    # TODO: fromFarmGetProductsByCategory |  Aqui
     client(id_fazenda: ID!, id_client: ID!): ConsumidorSchema
-    clients(id_fazenda: ID!): [ConsumidorSchema]
+    clients(id_fazenda: ID!): [ClientSchema]
     # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
     statistics(id_fazenda: ID!): [StatisticsSchema]
 }

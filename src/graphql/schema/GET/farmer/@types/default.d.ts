@@ -26,6 +26,7 @@ export type StatisticsType = {
 };
 
 export type ClientOnlyType = {
+    id_consumidor: string;
     nome_consumidor: string;
     email: string;
     numero_telefone: string;
@@ -33,6 +34,12 @@ export type ClientOnlyType = {
     data_nascimento: Date;
     caminho_foto_consumidor: string | null;
     localizacao: localizacao;
+    createdAt: Date;
+}
+
+export type ClientsType = {
+    id_client: string;
+    consumidor: ClientOnlyType;
 }
 
 export type FazendaAndProduct = {

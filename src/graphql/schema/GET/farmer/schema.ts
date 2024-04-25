@@ -9,7 +9,8 @@ import {
     FazendaAndSoldProduct,
     FazendaOnly,
     StatisticsType,
-    ClientOnlyType
+    ClientOnlyType,
+    ClientsType
 } from "./@types/default";
 import { DatabaseConnectionGET } from "../../../../model/databaseConnection";
 import { Consumidor, Produto } from "@prisma/client";
@@ -85,7 +86,7 @@ export const resolvers = {
 
             if (!rows) {
                 console.error('ERROR TO GET PRODUCTS BY CATEGORY' + id_categoria);
-                return;
+                return [];
             }
 
             if (Object.keys(rows).includes('message')) {
@@ -93,14 +94,22 @@ export const resolvers = {
                     message: string;
                     path: string[]
                 };
-                return error.message;
+                console.log(error);
+                return [];
             }
             const transform = rows as unknown as Produto[];
             return transform;
         },
         // TODO: criar a funcao responsavel por retornar um unico client, pelo ID
         client: async (_: any, { id_client, id_fazenda }: FazendaAndClient) => {
-            return []
+            const row = await database.fromFarmGetClient(id_fazenda, id_client);
+
+            if (!row || Object.keys(row).includes('message')) {
+                console.error(row);
+                return;
+            }
+            const transform = row[0] as unknown as ClientsType;
+            return transform;
         },
         clients: async (_: any, { id_fazenda }: FazendaAndClient) => {
             const rows = await database.fromFarmGetClients(id_fazenda);
@@ -114,7 +123,7 @@ export const resolvers = {
                 return;
             }
 
-            return rows as ClientOnlyType[];
+            return rows as ClientsType[];
         },
 
     }
