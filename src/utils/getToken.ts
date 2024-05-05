@@ -18,7 +18,7 @@ export function generateToken(req: Request, res: Response): string {
         expiresIn: Math.pow(60, 2) * 5
     });
 
-    // res.setHeader('Authorization', `Bearer ${token}`);
+    res.setHeader('Authorization', `Bearer ${token}`);
     return token;
 }
 
