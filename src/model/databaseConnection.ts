@@ -1308,4 +1308,37 @@ export class DatabaseConnectionGET {
       await this.prisma.$disconnect();
     }
   }
+
+  async fromDatabaseGetUser(email: string) {
+    const consumidor_row = await this.prisma['consumidor'].findUnique({
+      where: {
+        email
+      }
+    });
+
+    const fazendeiro_row = await this.prisma['fazendeiro'].findUnique({
+      where: {
+        email
+      }
+    });
+
+    if (consumidor_row !== null) {
+      return {
+        field: 'customer',
+        status: true
+      };
+    }
+    if (fazendeiro_row !== null) {
+      return {
+        field: 'farmer',
+        status: true
+      };
+    }
+
+    return {
+      field: 'default',
+      status: false
+    };
+  }
+
 }

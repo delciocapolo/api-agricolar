@@ -52,5 +52,14 @@ export const resolvers = {
             }
             return rows as Produto[];
         },
+        user: async (
+            _: any,
+            { email }: {
+                email: string
+            }
+        ) => {
+            const row = await database.fromDatabaseGetUser(email);
+            return row;
+        }
     }
 }

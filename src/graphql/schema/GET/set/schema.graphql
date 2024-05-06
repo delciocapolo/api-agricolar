@@ -61,8 +61,14 @@ type ProductSchema {
   updatedAt: Date
 }
 
+type UserSchema {
+  field: String
+  status: Boolean
+}
+
 type Query {
     costumers: [ConsumidorSchema]
     farmers: [FazendeiroSchema]
     products: [ProductSchema]
+    user(email: String): UserSchema
 }
