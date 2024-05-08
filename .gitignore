@@ -42,3 +42,15 @@ dist/**/*
 
 # ignore yarn.lock
 yarn.lock
+
+# Ignore `bin` dir
+bin/
+# or
+*/bin/*
+
+# Ignore everything in router dir
+./router/*
+/router/*
+# But not files with extension located in router dir
+!./router/*.*
+!/router/*.*

@@ -1,9 +1,10 @@
 import { ApolloServer } from "@apollo/server";
-import * as schema from "./schema";
+import {resolvers,typeDefs} from "./schema";
+import { buildSubgraphSchema } from "@apollo/subgraph";
 
 const serverGeneralEndpoint = new ApolloServer({
-    ...schema,
-    introspection: true
+    schema: buildSubgraphSchema({resolvers, typeDefs}),
+    introspection: true,
 });
 
 export default serverGeneralEndpoint;

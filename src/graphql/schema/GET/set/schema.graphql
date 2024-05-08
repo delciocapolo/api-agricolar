@@ -1,3 +1,7 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.0", 
+    import: ["@key"])
+
 scalar Date
 
 enum Sexo {
@@ -11,7 +15,7 @@ enum Role {
   Employee
 }
 
-type ConsumidorSchema {
+type ConsumidorSchema @key(fields: "id_consumidor") {
   id_consumidor: ID
   nome_consumidor: String
   email: String
@@ -27,7 +31,7 @@ type ConsumidorSchema {
   localizacao_id_localizacao: ID
 }
 
-type FazendeiroSchema {
+type FazendeiroSchema @key(fields: "id_fazendeiro") {
   id_fazendeiro: ID
   nome_fazendeiro: String
   email: String
@@ -40,14 +44,14 @@ type FazendeiroSchema {
   localizacao_id_localizacao: ID
 }
 
-type LocalizacaoSchema {
+type LocalizacaoSchema @key(fields: "id_localizacao") {
   id_localizacao: ID
   provincia: String
   cidade: String
   createdAt: Date
 }
 
-type ProductSchema {
+type ProductSchema @key(fields: "id_produto") {
   id_produto: ID
   nome_produto: String
   preco_produto: Float
@@ -67,8 +71,8 @@ type UserSchema {
 }
 
 type Query {
-    costumers: [ConsumidorSchema]
-    farmers: [FazendeiroSchema]
-    products: [ProductSchema]
-    user(email: String): UserSchema
+  costumers: [ConsumidorSchema]
+  farmers: [FazendeiroSchema]
+  products: [ProductSchema]
+  user(email: String): UserSchema
 }

@@ -1,3 +1,7 @@
+extend schema 
+  @link(url: "https://specs.apollo.dev/federation/v2.0", 
+    import: ["@key"])
+
 scalar Date
 
 enum Sexo {
@@ -11,7 +15,7 @@ enum Role {
   Employee
 }
 
-type ProductSchema {
+type ProductSchema @key(fields: "id_produto") {
   id_produto: ID
   nome_produto: String
   preco_produto: Float
@@ -25,17 +29,17 @@ type ProductSchema {
   updatedAt: Date
 }
 
-type StockSchema {
-    id_stock: String
-    nome_produto: String
-    quantidade_disponivel: Int
-    stock_inicial: Int
-    createdAt: Date
-    fazenda_id_fazenda: String
-    # produto: ProductSchema
+type StockSchema @key(fields: "id_stock") {
+  id_stock: ID
+  nome_produto: String
+  quantidade_disponivel: Int
+  stock_inicial: Int
+  createdAt: Date
+  fazenda_id_fazenda: String
+  # produto: ProductSchema
 }
 
-type ConsumidorSchema {
+type ConsumidorSchema @key(fields: "id_consumidor") {
   id_consumidor: ID
   nome_consumidor: String
   email: String
@@ -50,54 +54,54 @@ type ConsumidorSchema {
   localizacao_id_localizacao: ID
 }
 
-type ClientSchema {
+type ClientSchema @key(fields: "id_client") {
   id_client: ID
   consumidor: ConsumidorSchema
 }
 
 type LocalizacaoShotSchema {
-    provincia: String
-    cidade: String
+  provincia: String
+  cidade: String
 }
 
 type ProductShortSchema {
-    nome_produto: String
-    preco_produto: Int
-    caminho_foto_produto: String
-    descricao: String
+  nome_produto: String
+  preco_produto: Int
+  caminho_foto_produto: String
+  descricao: String
 }
 type ProductTypeShortSchema {
-    produto: ProductShortSchema
+  produto: ProductShortSchema
 }
-type ConsumidorShortSchema {
-    id_consumidor: ID
-    nome_consumidor: String
-    email: String
-    sexo: Sexo
-    numero_telefone: String
-    numero_compras: Int
-    compras: [ProductTypeShortSchema]
-    localizacao: LocalizacaoShotSchema
-    createdAt: Date
+type ConsumidorShortSchema @key(fields: "id_consumidor")  {
+  id_consumidor: ID
+  nome_consumidor: String
+  email: String
+  sexo: Sexo
+  numero_telefone: String
+  numero_compras: Int
+  compras: [ProductTypeShortSchema]
+  localizacao: LocalizacaoShotSchema
+  createdAt: Date
 }
 
 # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
-type StatisticsSchema {
-    consumidor: [ConsumidorShortSchema]
-    id_monitoramento: String
+type StatisticsSchema @key(fields: "id_monitoramento")  {
+  consumidor: [ConsumidorShortSchema]
+  id_monitoramento: String
 }
 type Query {
-    # FIXME: Coordenar com o schema.ts e Database.getSoldProduct(DatabaseConnection.ts)
-    sold(id_fazenda: ID!, id_monitoramento: ID!): ProductSchema
-    # Resolvidos
-    solds(id_fazenda: ID!): [ProductSchema]
-    product(id_fazenda: ID!, id_product: ID!): ProductSchema
-    products(id_fazenda: ID!): [ProductSchema]
-    stock(id_fazenda: ID!): [StockSchema]
-    productByCategory(id_categoria: Int!): [ProductSchema]
-    # TODO: fromFarmGetProductsByCategory |  Aqui
-    client(id_fazenda: ID!, id_client: ID!): ConsumidorSchema
-    clients(id_fazenda: ID!): [ClientSchema]
-    # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
-    statistics(id_fazenda: ID!): [StatisticsSchema]
+  # FIXME: Coordenar com o schema.ts e Database.getSoldProduct(DatabaseConnection.ts)
+  sold(id_fazenda: ID!, id_monitoramento: ID!): ProductSchema
+  # Resolvidos
+  solds(id_fazenda: ID!): [ProductSchema]
+  product(id_fazenda: ID!, id_product: ID!): ProductSchema
+  products(id_fazenda: ID!): [ProductSchema]
+  stock(id_fazenda: ID!): [StockSchema]
+  productByCategory(id_categoria: Int!): [ProductSchema]
+  # TODO: fromFarmGetProductsByCategory |  Aqui
+  client(id_fazenda: ID!, id_client: ID!): ConsumidorSchema
+  clients(id_fazenda: ID!): [ClientSchema]
+  # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
+  statistics(id_fazenda: ID!): [StatisticsSchema]
 }

@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.10.2",
-    "@apollo/subgraph": "^2.7.2",
+    "@apollo/subgraph": "^2.7.5",
     "@prisma/client": "^5.12.1",
     "@prisma/internals": "^5.12.1",
     "axios": "^1.6.8",

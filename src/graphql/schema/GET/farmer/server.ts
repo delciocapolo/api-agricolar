@@ -1,8 +1,10 @@
 import { ApolloServer } from "@apollo/server";
-import * as schema from "./schema";
+import {resolvers,typeDefs} from "./schema";
+import { buildSubgraphSchema } from "@apollo/subgraph";
 
 const serverGetFarmerRoute = new ApolloServer({
-    ...schema
+  schema: buildSubgraphSchema({ resolvers, typeDefs }),
+  introspection: true,
 });
 
 export default serverGetFarmerRoute;
