@@ -7,7 +7,6 @@ import { Fazenda, Produto } from "@prisma/client";
 // local modules
 import DATESCALAR from "../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
-import { ctxType } from "../../helpers/ContextType";
 import {
   FarmerInputType,
   EmplyeeInputType,
@@ -34,7 +33,7 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createFarmer: async (_: any, { fazendeiro, localizacao }: FarmerInputType, ctx: ctxType) => {
+    createFarmer: async (_: any, { fazendeiro, localizacao }: FarmerInputType, ctx: any) => {
       const __ = ctx.token;
 
       const that = { ...fazendeiro };
@@ -50,7 +49,7 @@ export const resolvers = {
 
       return response;
     },
-    createFarm: async (_: any, { id_fazendeiro, farm }: FarmInputType, ctx: ctxType) => {
+    createFarm: async (_: any, { id_fazendeiro, farm }: FarmInputType, ctx: any) => {
       try {
         if (!farm || typeof farm !== 'object') {
           throw new Error('Objeto \"fazenda\" não foi fornecido corretamente.');

@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
     "dev": "NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.mts",
-    "bundle": "tsup .",
+    "bundle": "tsup ./src",
     "start": "NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env ./bundle/src/index.mjs",
     "up": "pm2 start npm -- start --watch --ignore-watch=node_modules"
   },
@@ -62,6 +62,7 @@
     "loadtest": "^8.0.9",
     "prisma": "^5.12.1",
     "supertest": "^6.3.4",
+    "tsup": "^8.0.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
   }

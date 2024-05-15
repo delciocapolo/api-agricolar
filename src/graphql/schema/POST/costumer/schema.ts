@@ -6,7 +6,6 @@ import { Consumidor, Localizacao } from "@prisma/client";
 import { CostumerAndFarmType, CostumerAndProductType } from "../../../../model/@types/type";
 import DATESCALAR from "../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
-import { ContextAPI } from "../../helpers/ContextType";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(readFileSync(path.resolve(__dirname, 'schema.graphql'), { encoding: 'utf-8' }));
@@ -27,6 +26,8 @@ export const resolvers = {
                 localizacao: Localizacao
             },
         ) => {
+            const row = await database.createCostumer(consumidor, localizacao);
+            return row;
         },
         createWishList: async (
             _: any,
