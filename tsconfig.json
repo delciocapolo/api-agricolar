@@ -17,7 +17,7 @@
     /* If transpiling with TypeScript: */
     "moduleResolution": "Bundler",
     "module": "Preserve",
-    // "outDir": "dist",
+    // "outDir": "./bundle",
     // "noEmit": true,
     "sourceMap": true,
     /* If your code doesn't run in the DOM: */

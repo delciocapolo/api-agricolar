@@ -3,21 +3,19 @@ import { gql } from "graphql-tag";
 import path from "node:path";
 import { readFileSync } from "node:fs";
 import { Consumidor, Localizacao } from "@prisma/client";
-import { ctxType } from "../../helpers/ContextType";
 import { CostumerAndFarmType, CostumerAndProductType } from "../../../../model/@types/type";
 import DATESCALAR from "../../helpers/DateScalar";
 import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
+import { ContextAPI } from "../../helpers/ContextType";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const typeDefs = gql(readFileSync(path.resolve(__dirname, "schema.graphql"), {
-    encoding: 'utf-8'
-}));
+export const typeDefs = gql(readFileSync(path.resolve(__dirname, 'schema.graphql'), { encoding: 'utf-8' }));
 
 const database = new DatabaseConnectionPOST();
 export const resolvers = {
     Date: DATESCALAR,
     Query: {
-        done() {
+        done: () => {
             return "Done"
         }
     },
@@ -28,15 +26,7 @@ export const resolvers = {
                 consumidor: Consumidor,
                 localizacao: Localizacao
             },
-            ctx: ctxType
         ) => {
-            const token = ctx.token;
-            console.log(token);
-            const temp_data = { ...consumidor, data_nascimento: new Date(consumidor.data_nascimento).getTime() };
-            console.log(temp_data);
-            const costumer = await database.createCostumer(temp_data, localizacao);
-
-            return costumer;
         },
         createWishList: async (
             _: any,

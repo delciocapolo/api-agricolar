@@ -1,25 +1,32 @@
+// Modules core
 import { expressMiddleware } from "@apollo/server/express4";
 import express from "express";
 import http from "node:http";
 import cors, { CorsRequest } from "cors";
 import { debuglog } from "node:util";
 
-import { serverFarmerCreate } from "./graphql/schema/POST/farmer/server";
-import { serverCostumerCreate } from "./graphql/schema/POST/costumer/server";
+// Servidores
+import serverFarmerCreate from "./graphql/schema/POST/farmer/server";
+import serverCostumerCreate from "./graphql/schema/POST/costumer/server";
+import serverGeneralEndpoint from "./graphql/schema/GET/set/server";
+import serverGetFarmerRoute from "./graphql/schema/GET/farmer/server";
+// Servidor -> Serviço
+import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
+
+// Utils
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { generateToken } from "./utils/getToken";
-import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
-import { PORT } from "./utils/EnvConfigs";
 import { statistic } from "./DTO/statistic";
-import serverGeneralEndpoint from "./graphql/schema/GET/set/server";
-import { ApolloServer, BaseContext } from "@apollo/server";
-import { ContextAPI } from "./graphql/schema/helpers/ContextType";
-import serverGetFarmerRoute from "./graphql/schema/GET/farmer/server";
+import { ArrayApolloServerType } from "./graphql/@types/graphqlType";
 
 const app = express();
 const httpServer = http.createServer(app);
 const log = debuglog('server');
-const activePublicFn = (...servers: Array<ApolloServer<BaseContext> | ApolloServer<ContextAPI>>) => servers.map((srv) => srv.addPlugin(ApolloServerPluginDrainHttpServer({ httpServer })));
+
+const activePublicFn = (...servers: ArrayApolloServerType) =>
+  servers.map((server) =>
+    server.addPlugin(ApolloServerPluginDrainHttpServer({ httpServer }))
+  );
 
 app.use(
   cors<CorsRequest>({
@@ -30,45 +37,29 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+const SERVERS: ArrayApolloServerType = [
+  serverFarmerCreate,
+  serverCostumerCreate,
+  serverGeneralEndpoint,
+  serverGetFarmerRoute,
+];
 // Plugin para as rotas
-activePublicFn(serverCostumerCreate, serverFarmerCreate, serverGeneralEndpoint, serverGetFarmerRoute);
+activePublicFn(...SERVERS);
 
 // definindo os servidores
-await serverFarmerCreate.start()
-  .then((_) => {
-    statistic.push({
-      server: "GraphQL",
-      status: "Running",
-      name: "Create Farmer 📬",
-      adress: `http://localhost:${PORT}/v1/farmer/create`,
-    });
-  });
-await serverCostumerCreate.start()
-  .then((_) => {
-    statistic.push({
-      server: "GRAPHQL",
-      status: "Running",
-      name: "Create Costumer 📬",
-      adress: `http://localhost:${PORT}/v1/costumer/create`,
-    });
-  });
-await serverGeneralEndpoint.start()
-  .then((_) => {
-    statistic.push({
-      server: "GRAPHQL",
-      status: "Running",
-      name: "General Endpoint 📬",
-      adress: `http://localhost:${PORT}/v1/set`,
-    });
-  });
-await serverGetFarmerRoute.start()
-  .then((_) => {
-    statistic.push({
-      server: "GRAPHQL",
-      status: "Running",
-      name: "Get Farmer 📬",
-      adress: `http://localhost:${PORT}/v1/farmer/farmID`,
-    });
+
+await Promise.all(SERVERS.map(servers => (servers.start())))
+  .then(servers => {
+    servers.map((_, index) => {
+      const server = SERVERS[index];
+      if (Object.keys(server).includes('info')) {
+        statistic.push({ ...server['info'], status: "running" });
+      }
+    })
+  })
+  .catch(error => {
+    log('ERRO AO EXECUTAR TODOS OS SERVIDORES');
+    log(error);
   })
 
 // Definindo as rotas

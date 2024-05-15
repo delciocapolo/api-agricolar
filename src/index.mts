@@ -9,7 +9,7 @@ const log = debuglog('main');
 await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
 statistic.push({
     server: "HTTP",
-    status: "Running",
+    status: "running",
     name: "HTTP 📬",
     adress: `http://localhost:${PORT}/v1/`,
 });

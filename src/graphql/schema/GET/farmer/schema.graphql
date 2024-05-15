@@ -90,6 +90,7 @@ type StatisticsSchema @key(fields: "id_monitoramento")  {
   consumidor: [ConsumidorShortSchema]
   id_monitoramento: String
 }
+
 type Query {
   # FIXME: Coordenar com o schema.ts e Database.getSoldProduct(DatabaseConnection.ts)
   sold(id_fazenda: ID!, id_monitoramento: ID!): ProductSchema

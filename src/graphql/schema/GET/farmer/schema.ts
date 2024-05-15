@@ -1,25 +1,25 @@
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import gql from "graphql-tag";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
     FazendaAndProduct,
     CategoriaOnly,
     FazendaAndClient,
     FazendaAndSoldProduct,
-    FazendaOnly,
     StatisticsType,
-    ClientOnlyType,
     ClientsType
 } from "./@types/default";
 import { DatabaseConnectionGET } from "../../../../model/databaseConnection";
-import { Consumidor, Produto } from "@prisma/client";
+import { Produto } from "@prisma/client";
+import DATESCALAR from "../../helpers/DateScalar";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(readFileSync(path.resolve(__dirname, 'schema.graphql'), { encoding: 'utf-8' }));
 
 const database = new DatabaseConnectionGET();
 export const resolvers = {
+    Date: DATESCALAR,
     Query: {
         sold: async (_: any, { id_fazenda, id_monitoramento }: FazendaAndSoldProduct) => {
             const row = await database.getSoldProduct(id_fazenda, id_monitoramento);

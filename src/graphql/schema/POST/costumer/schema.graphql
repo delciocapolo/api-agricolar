@@ -1,3 +1,6 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+  
 scalar Date
 
 enum Sexo {
@@ -11,7 +14,7 @@ enum Role {
   Employee
 }
 
-type FazendeiroSchema {
+type FazendeiroSchema @key(fields: "id_fazendeiro") {
   id_fazendeiro: ID
   nome_fazendeiro: String
   email: String
@@ -24,14 +27,14 @@ type FazendeiroSchema {
   localizacao_id_localizacao: String
 }
 
-type LocalizacaoSchema {
+type LocalizacaoSchema @key(fields: "id_localizacao") {
   id_localizacao: ID
   provincia: String
   cidade: String
   createdAt: Date
 }
 
-type FarmSchema {
+type FarmSchema @key(fields: "id_fazenda") {
   id_fazenda: ID
   nome_fazenda: String
   createAt: Date
@@ -39,7 +42,7 @@ type FarmSchema {
   fazendeiro_id_fazendeiro: String
 }
 
-type ConsumidorSchema {
+type ConsumidorSchema @key(fields: "id_consumidor") {
   id_consumidor: ID
   nome_consumidor: String
   email: String
@@ -55,18 +58,18 @@ type ConsumidorSchema {
   localizacao_id_localizacao: String
 }
 
-type CategoriaSchema {
+type CategoriaSchema @key(fields: "id_categoria") {
   id_categoria: Int
   nome_categoria: String
   createdAt: Date
 }
 
-type CreateProductTypeSchema {
+type CreateProductTypeSchema @key(fields: "id_fazenda") {
   id_fazenda: ID
   categoria: CategoriaSchema
 }
 
-type ProductSchema {
+type ProductSchema @key(fields: "id_produto") {
   id_produto: ID
   nome_produto: String
   preco_produto: Float
@@ -80,7 +83,7 @@ type ProductSchema {
   updatedAt: Date
 }
 
-type EmployeeSchema {
+type EmployeeSchema @key(fields: "id_colaborador") {
   id_colaborador: ID
   entidade_id_fazenda: String
   empregado_id_consumidor: String
@@ -92,7 +95,7 @@ type CreateEmployeeSchema {
   employee: EmployeeSchema
 }
 
-type WishListSchema {
+type WishListSchema @key(fields: "id_produto_favorito") {
   id_produto_favorito: ID
   produto_id_produto: String
   consumidor_id_consumidor: String
@@ -100,7 +103,7 @@ type WishListSchema {
   updatedAt: Date
 }
 
-type CarrinhoSchema {
+type CarrinhoSchema @key(fields: "id_carrinho") {
   id_carrinho: ID
   produto_id_produto: String
   consumidor_id_consumidor: String
@@ -108,8 +111,8 @@ type CarrinhoSchema {
   updatedAt: Date
 }
 
-type FazendaFavoritaSchema {
-  id_fazenda_favorita: String
+type FazendaFavoritaSchema @key(fields: "id_fazenda_favorita") {
+  id_fazenda_favorita: ID
   consumidor_id_consumidor: String
   fazenda_id_fazenda: String
   createdAt: Date
@@ -154,8 +157,13 @@ type Query {
 }
 
 type Mutation {
-  createCostumer(consumidor: ConsumidorInput, localizacao: LocalizacaoInput): ConsumidorSchema
+  createCostumer(
+    consumidor: ConsumidorInput
+    localizacao: LocalizacaoInput
+  ): ConsumidorSchema
   createWishList(wishList: WishListInput): WishListSchema
   createCart(carrinho: CriarCarrinhoInput): CarrinhoSchema
-  createFavoriteFarm(fazendaFavorita: FazendaFavoritaInput): FazendaFavoritaSchema
+  createFavoriteFarm(
+    fazendaFavorita: FazendaFavoritaInput
+  ): FazendaFavoritaSchema
 }
