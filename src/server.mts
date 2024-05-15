@@ -47,20 +47,14 @@ const SERVERS: ArrayApolloServerType = [
 activePublicFn(...SERVERS);
 
 // definindo os servidores
-
 await Promise.all(SERVERS.map(servers => (servers.start())))
   .then(servers => {
-    servers.map((_, index) => {
-      const server = SERVERS[index];
-      if (Object.keys(server).includes('info')) {
-        statistic.push({ ...server['info'], status: "running" });
-      }
-    })
+    log('All server are running')
   })
   .catch(error => {
     log('ERRO AO EXECUTAR TODOS OS SERVIDORES');
     log(error);
-  })
+  });
 
 // Definindo as rotas
 app.use('/v1/farmer/create', expressMiddleware(

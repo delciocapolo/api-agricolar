@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { Router } from "express";
 
 const getCredentialRoute = Router();
@@ -8,7 +7,10 @@ getCredentialRoute.get("/v1/bi/:bi", async (req, res) => {
     const { bi } = req.params;
 
     const response = await fetch(
-      `https://digital.ao/ao/actions/bi.ajcall.php?bi=${bi}`
+      `https://digital.ao/ao/actions/bi.ajcall.php?bi=${bi}`,
+      {
+        method: "GET"
+      }
     );
     const { success, data, error } = (await response.json()) as {
       success: boolean;

@@ -5,14 +5,14 @@
   "engines": {
     "node": "20.11.1"
   },
-  "type": "module",
   "scripts": {
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
-    "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.mts",
-    "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env ./bundle/src/index.mjs",
+    "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.ts",
+    "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --env-file=.env ./dist/bundle.js",
     "up": "pm2 start npm -- start --watch --ignore-watch=node_modules",
-    "bundle": "tsup"
+    "bundle": "webpack"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/delciocapolo/APIAgricolar"
@@ -59,12 +59,20 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.2",
     "@types/supertest": "^6.0.2",
+    "copy-webpack-plugin": "^12.0.2",
     "coverage": "^0.4.1",
     "loadtest": "^8.0.9",
     "prisma": "^5.12.1",
     "supertest": "^6.3.4",
+    "ts-loader": "^9.5.1",
     "tsup": "^8.0.2",
     "tsx": "^4.7.1",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.3",
+    "vitest": "^1.6.0",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4",
+    "webpack-merge": "^5.10.0",
+    "webpack-node-externals": "^3.0.0"
   }
 }

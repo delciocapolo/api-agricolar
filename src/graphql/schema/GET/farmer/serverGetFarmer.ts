@@ -8,9 +8,4 @@ const serverGetFarmerRoute = new ApolloServer({
   introspection: true,
 });
 
-serverGetFarmerRoute["info"] = {
-  server: "GRAPHQL",
-  name: "Get Farmer 📬",
-  adress: `http://localhost:${PORT}/v1/farmer/farmID`,
-};
 export default serverGetFarmerRoute;

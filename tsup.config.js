@@ -23,6 +23,8 @@ export default defineConfig({
     ".sql",
     ".mk",
   ],
+  keepNames: true,
+  minify: true,
   // Habilitar esta opção irá preencher algum código ao construir esm/cjs para fazê-lo funcionar,
   // como __dirname que está disponível apenas no módulo cjs e import.meta.url que está disponível
   // apenas no módulo esm

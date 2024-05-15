@@ -9,10 +9,4 @@ const serverCostumerCreate = new ApolloServer<ContextAPI>({
   introspection: true,
 });
 
-serverCostumerCreate["info"] = {
-  server: "GRAPHQL",
-  name: "Create Costumer 📬",
-  adress: `http://localhost:${PORT}/v1/costumer/create`,
-};
-
 export default serverCostumerCreate;

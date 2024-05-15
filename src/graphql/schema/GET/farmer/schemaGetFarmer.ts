@@ -8,7 +8,8 @@ import {
     FazendaAndClient,
     FazendaAndSoldProduct,
     StatisticsType,
-    ClientsType
+    ClientsType,
+    ClientOnlyType
 } from "./@types/default";
 import { DatabaseConnectionGET } from "../../../../model/databaseConnection";
 import { Produto } from "@prisma/client";
@@ -16,6 +17,11 @@ import DATESCALAR from "../../helpers/DateScalar";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(readFileSync(path.resolve(__dirname, 'schema.graphql'), { encoding: 'utf-8' }));
+
+type ErrorObject = {
+  message: string;
+  path: string[];
+};
 
 const database = new DatabaseConnectionGET();
 export const resolvers = {
@@ -108,7 +114,7 @@ export const resolvers = {
                 console.error(row);
                 return;
             }
-            const transform = row[0] as unknown as ClientsType;
+            const transform = row as unknown as ClientOnlyType;
             return transform;
         },
         clients: async (_: any, { id_fazenda }: FazendaAndClient) => {

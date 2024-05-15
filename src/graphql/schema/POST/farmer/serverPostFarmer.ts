@@ -9,10 +9,4 @@ const serverFarmerCreate = new ApolloServer<ContextAPI>({
   introspection: true
 });
 
-serverFarmerCreate["info"] = {
-  server: "GraphQL",
-  name: "Create Farmer 📬",
-  adress: `http://localhost:${PORT}/v1/farmer/create`,
-};
-
 export default serverFarmerCreate;
