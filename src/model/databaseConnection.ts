@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client/default.js";
+import {
+  PrismaClient,
+} from "@prisma/client";
 import type {
   Consumidor,
   Localizacao,

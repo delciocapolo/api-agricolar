@@ -1,8 +1,8 @@
 import { PORT } from "./utils/EnvConfigs";
-import { httpServer } from './server.mjs';
 import { debuglog } from "node:util";
 import { statistic } from "./DTO/statistic";
 import { DatabaseConnectionPOST } from "./model/databaseConnection";
+import { httpServer } from "./server.mts";
 
 const log = debuglog('main');
 

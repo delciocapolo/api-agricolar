@@ -6,10 +6,10 @@ import cors, { CorsRequest } from "cors";
 import { debuglog } from "node:util";
 
 // Servidores
-import serverFarmerCreate from "./graphql/schema/POST/farmer/server";
-import serverCostumerCreate from "./graphql/schema/POST/costumer/server";
-import serverGeneralEndpoint from "./graphql/schema/GET/set/server";
-import serverGetFarmerRoute from "./graphql/schema/GET/farmer/server";
+import serverFarmerCreate from "./graphql/schema/POST/farmer/serverPostFarmer";
+import serverCostumerCreate from "./graphql/schema/POST/costumer/serverPostCostumer";
+import serverGeneralEndpoint from "./graphql/schema/GET/set/serverGetSet";
+import serverGetFarmerRoute from "./graphql/schema/GET/farmer/serverGetFarmer";
 // Servidor -> Serviço
 import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
 

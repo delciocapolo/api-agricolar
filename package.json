@@ -8,10 +8,10 @@
   "type": "module",
   "scripts": {
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
-    "dev": "NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.mts",
-    "bundle": "tsup ./src",
-    "start": "NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env ./bundle/src/index.mjs",
-    "up": "pm2 start npm -- start --watch --ignore-watch=node_modules"
+    "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.mts",
+    "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env ./bundle/src/index.mjs",
+    "up": "pm2 start npm -- start --watch --ignore-watch=node_modules",
+    "bundle": "tsup"
   },
   "repository": {
     "type": "git",
@@ -52,6 +52,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.4",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",

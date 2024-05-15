@@ -1,5 +1,5 @@
 import { ApolloServer } from "@apollo/server";
-import {resolvers,typeDefs} from "./schema";
+import {resolvers,typeDefs} from "./schemaGetFarmer";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { PORT } from "../../../../utils/EnvConfigs";
 
