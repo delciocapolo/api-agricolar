@@ -48,8 +48,8 @@ activePublicFn(...SERVERS);
 
 // definindo os servidores
 await Promise.all(SERVERS.map(servers => (servers.start())))
-  .then(servers => {
-    log('All server are running')
+  .then((_) => {
+    log('All GraphQL server are running')
   })
   .catch(error => {
     log('ERRO AO EXECUTAR TODOS OS SERVIDORES');

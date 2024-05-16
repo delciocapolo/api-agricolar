@@ -42,20 +42,21 @@ type FarmSchema @key(fields: "id_fazenda") {
   fazendeiro_id_fazendeiro: String
 }
 
+type SimpleLocalizacaoSchema {
+  cidade: String
+  provincia: String
+}
+
 type ConsumidorSchema @key(fields: "id_consumidor") {
   id_consumidor: ID
   nome_consumidor: String
   email: String
   numero_telefone: String
-  senha: String
   sexo: Sexo
   data_nascimento: Date
   caminho_foto_consumidor: String
-  numero_compras: Int
-  role: Role
   createAt: Date
-  updatedAt: Date
-  localizacao_id_localizacao: String
+  localizacao: SimpleLocalizacaoSchema
 }
 
 type CategoriaSchema @key(fields: "id_categoria") {
@@ -137,23 +138,8 @@ input LocalizacaoInput {
   cidade: String
 }
 
-input WishListInput {
-  id_consumidor: ID!
-  id_produto: ID!
-}
-
-input CriarCarrinhoInput {
-  id_consumidor: ID!
-  id_produto: ID!
-}
-
-input FazendaFavoritaInput {
-  id_consumidor: ID!
-  id_fazenda: ID!
-}
-
 type Query {
-  done: String!
+  health: String!
 }
 
 type Mutation {
@@ -161,9 +147,7 @@ type Mutation {
     consumidor: ConsumidorInput
     localizacao: LocalizacaoInput
   ): ConsumidorSchema
-  createWishList(wishList: WishListInput): WishListSchema
-  createCart(carrinho: CriarCarrinhoInput): CarrinhoSchema
-  createFavoriteFarm(
-    fazendaFavorita: FazendaFavoritaInput
-  ): FazendaFavoritaSchema
+  addToWishList(id_consumidor: ID!, id_produto: ID!): WishListSchema
+  addToCart( id_consumidor: ID!, id_produto: ID!): CarrinhoSchema
+  createFavoriteFarm(id_consumidor: ID!, id_fazenda: ID!): FazendaFavoritaSchema
 }

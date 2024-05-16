@@ -2,17 +2,14 @@ import {
   PrismaClient,
 } from "@prisma/client";
 import type {
-  Consumidor,
-  Localizacao,
-} from "@prisma/client";
-import type {
   CostumerAndProductType,
   CostumerAndFarmType,
   CreateClient,
   CreateEmployeetype,
 } from "./@types/type";
 import { debuglog } from "util";
-import { FarmInputType, FarmerInputType, ProductTypeInput, SellProductInputType } from "../graphql/schema/POST/@types/farmer";
+import type { FarmInputType, FarmerInputType, ProductTypeInput, SellProductInputType } from "../graphql/schema/POST/@types/farmer";
+import type { CustomerInputType, LocalizacaoInputType } from "../graphql/schema/POST/costumer/@types/CustomerInput";
 
 const log = debuglog('database');
 
@@ -21,35 +18,30 @@ export class DatabaseConnectionPOST {
 
   constructor() {
     this.prisma = new PrismaClient();
-    this.prisma.$connect().then(_ => {
-      log(`Conexão com Banco de Dados [${DatabaseConnectionPOST.name}] estabelecida com sucesso`);
+    this.prisma.$connect().then((_) => {
+      log(
+        `Conexão com Banco de Dados [DatabaseConnectionPOST] estabelecida com sucesso`
+      );
     });
   }
   // metodos para consumidores
   async createCostumer(
-    consumidor: Consumidor | Consumidor[],
-    localizacao: Localizacao
+    consumidor: CustomerInputType,
+    localizacao: LocalizacaoInputType
   ) {
     try {
-      if (Array.isArray(consumidor)) {
-        const data = await this.prisma["consumidor"].createMany({
-          data: consumidor,
-        });
-        return data;
-      }
-
-      const exists = await this.prisma['consumidor'].findUnique({
+      const exists = await this.prisma["consumidor"].findUnique({
         where: {
-          email: consumidor.email
-        }
+          email: consumidor.email,
+        },
       });
 
       if (exists !== null) {
-        const obj = {
-          message: "Costumer already exists",
+        const object_error = {
+          error: "O CONSUMIDOR JA EXISTE",
+          path: "createCostumer method's class",
         };
-        console.error(obj);
-        return { ...obj };
+        return object_error;
       }
 
       const data = await this.prisma["consumidor"].create({
@@ -68,22 +60,54 @@ export class DatabaseConnectionPOST {
             },
           },
         },
-        include: {
-          localizacao: true,
+        select: {
+          id_consumidor: true,
+          nome_consumidor: true,
+          email: true,
+          data_nascimento: true,
+          numero_telefone: true,
+          sexo: true,
+          caminho_foto_consumidor: true,
+          createdAt: true,
+          localizacao: {
+            select: {
+              cidade: true,
+              provincia: true,
+            },
+          },
         },
       });
 
       return data;
     } catch (error) {
-      console.error("CREATE COSTUMER, [ERROR]: ");
+      console.error("CREATE CUSTOMER, [ERROR]: ");
       console.error(error);
     } finally {
       await this.prisma.$disconnect();
     }
   }
 
-  async createWishList({ id_consumidor, id_produto }: CostumerAndProductType) {
+  async fromCustomerAddToWishList({ id_consumidor, id_produto }: CostumerAndProductType) {
     try {
+      const alreadyExistsInWishList = await this.prisma[
+        "produtoFavorito"
+      ].findUnique({
+        where: {
+          produto_id_produto_consumidor_id_consumidor: {
+            consumidor_id_consumidor: id_consumidor,
+            produto_id_produto: id_produto,
+          },
+        },
+      });
+
+      if (alreadyExistsInWishList !== null) {
+        const object_error = {
+          error: "O PRODUTO JA ESTA NA LISTA DE FAVORITOS",
+          path: "createWishList method's class",
+        };
+        return object_error;
+      }
+
       const data = await this.prisma["produtoFavorito"].create({
         data: {
           consumidor_id_consumidor: id_consumidor,
@@ -101,16 +125,34 @@ export class DatabaseConnectionPOST {
 
   async addToCart({ id_consumidor, id_produto }: CostumerAndProductType) {
     try {
+      const alreadyExistsInWishList = await this.prisma[
+        "carrinho"
+      ].findUnique({
+        where: {
+          produto_id_produto_consumidor_id_consumidor: {
+            consumidor_id_consumidor: id_consumidor,
+            produto_id_produto: id_produto,
+          },
+        },
+      });
+
+      if (alreadyExistsInWishList !== null) {
+        const object_error = {
+          error: "O PRODUTO JA ESTA NO CARRINHO",
+          path: "addToCarts method's class",
+        };
+        return object_error;
+      }
+
       const data = await this.prisma["carrinho"].create({
         data: {
           consumidor_id_consumidor: id_consumidor,
           produto_id_produto: id_produto,
         },
       });
-
       return data;
     } catch (error) {
-      console.error("ADD TO CART, [ERROR]: ");
+      console.error("CREATE WISH LIST, [ERROR]: ");
       console.error(error);
     } finally {
       await this.prisma.$disconnect();
@@ -122,6 +164,24 @@ export class DatabaseConnectionPOST {
     id_fazenda,
   }: CostumerAndFarmType) {
     try {
+      const alreadyExistsInFavoriteFarm = await this.prisma['fazendaFavorita']
+      .findUnique({
+        where: {
+          consumidor_id_consumidor_fazenda_id_fazenda: {
+            consumidor_id_consumidor: id_consumidor,
+            fazenda_id_fazenda: id_fazenda
+          }
+        }
+      })
+      
+      if (alreadyExistsInFavoriteFarm !== null) {
+        const object_error = {
+          error: "ESTA FAZENDA, JA EXISTE NA LISTA DE FAVORITAS",
+          path: "createFarvoriteFarm method's class",
+        };
+        return object_error;
+      }
+
       const data = await this.prisma["fazendaFavorita"].create({
         data: {
           consumidor_id_consumidor: id_consumidor,
@@ -149,16 +209,16 @@ export class DatabaseConnectionPOST {
         return data;
       }
 
-      const exists = await this.prisma['fazendeiro'].findUnique({
+      const exists = await this.prisma["fazendeiro"].findUnique({
         where: {
-          email: fazendeiro.email
-        }
+          email: fazendeiro.email,
+        },
       });
 
       if (exists !== null) {
         const object_error = {
           message: "O FAZENDEIRO JA EXISTE",
-          path: "createFarmer method's class"
+          path: "createFarmer method's class",
         };
         return object_error;
       }
@@ -192,19 +252,19 @@ export class DatabaseConnectionPOST {
     try {
       const existsFarmer = await this.prisma["fazendeiro"].findUnique({
         where: {
-          id_fazendeiro
+          id_fazendeiro,
         },
       });
-      const existsFarm = await this.prisma['fazenda'].findUnique({
+      const existsFarm = await this.prisma["fazenda"].findUnique({
         where: {
-          nome_fazenda: farm.nome_fazenda
-        }
+          nome_fazenda: farm.nome_fazenda,
+        },
       });
 
       if (existsFarmer === null) {
         const object_error = {
           message: "O FAZENDEIRO NAO EXISTE",
-          path: "createFarm method's class"
+          path: "createFarm method's class",
         };
         return object_error;
       }
@@ -212,7 +272,7 @@ export class DatabaseConnectionPOST {
       if (existsFarm !== null) {
         const object_error = {
           message: `A ${farm.nome_fazenda} FAZENDA JA EXISTE`,
-          path: "createFarm method's class"
+          path: "createFarm method's class",
         };
         return object_error;
       }
@@ -222,7 +282,7 @@ export class DatabaseConnectionPOST {
           nome_fazenda: farm.nome_fazenda,
           fazendeiro: {
             connect: {
-              id_fazendeiro
+              id_fazendeiro,
             },
           },
         },
@@ -237,7 +297,11 @@ export class DatabaseConnectionPOST {
     }
   }
 
-  async createProduct({ id_fazenda, nome_categoria, produto }: ProductTypeInput) {
+  async createProduct({
+    id_fazenda,
+    nome_categoria,
+    produto,
+  }: ProductTypeInput) {
     try {
       const existsFarmer = await this.prisma["fazenda"].findUnique({
         where: {
@@ -248,7 +312,7 @@ export class DatabaseConnectionPOST {
       if (existsFarmer === null) {
         const object_error = {
           message: "A FAZENDA NAO EXISTE",
-          path: ['createProduct', 'DatabaseConnection']
+          path: ["createProduct", "DatabaseConnection"],
         };
         return object_error;
       }
@@ -275,7 +339,7 @@ export class DatabaseConnectionPOST {
               id_fazenda,
             },
           },
-        }
+        },
       });
 
       return data;
@@ -295,17 +359,17 @@ export class DatabaseConnectionPOST {
         },
       });
 
-      const productExists = await this.prisma['produto'].findUnique({
+      const productExists = await this.prisma["produto"].findUnique({
         where: {
-          id_produto
-        }
+          id_produto,
+        },
       });
 
       if (productExists === null || costumerExists === null) {
         const not_exists = costumerExists === null ? "CONSUMIDOR" : "PRODUTO";
         const object_error = {
           message: `O ${not_exists} NAO EXISTE`,
-          path: ['sellProduct', 'DatabaseConnectionPOST']
+          path: ["sellProduct", "DatabaseConnectionPOST"],
         };
         return object_error;
       }
@@ -319,12 +383,12 @@ export class DatabaseConnectionPOST {
         },
       });
 
-      await this.prisma['monitoramento'].create({
+      await this.prisma["monitoramento"].create({
         data: {
           consumidor_id_consumirdor: id_consumidor,
           produto_id_produto: row.id_produto,
-          fazenda_id_fazenda: row.fazenda_id_fazenda
-        }
+          fazenda_id_fazenda: row.fazenda_id_fazenda,
+        },
       });
 
       return row;
@@ -358,7 +422,7 @@ export class DatabaseConnectionPOST {
         const not_exists = farmExists === null ? "Fazenda" : "Consumidor";
         const object_error = {
           message: `O/A ${not_exists} NAO EXISTE`,
-          path: ['createEmployee', 'DatabaseConnectionPOST']
+          path: ["createEmployee", "DatabaseConnectionPOST"],
         };
         return object_error;
       }
@@ -400,7 +464,6 @@ export class DatabaseConnectionPOST {
     }
   }
 
-
   async createClient({ id_consumidor, id_fazenda }: CreateClient) {
     try {
       const farm = await this.prisma["fazenda"].findUnique({
@@ -441,7 +504,7 @@ export class DatabaseConnectionPOST {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried create Clients from the Farm " +
-        id_fazenda
+          id_fazenda
       );
       console.error(error);
     } finally {
@@ -455,7 +518,9 @@ export class DatabaseConnectionGET {
   constructor() {
     this.prisma = new PrismaClient();
     this.prisma.$connect().then(_ => {
-      log(`Conexão com Banco de Dados [${DatabaseConnectionGET.name}] estabelecida com sucesso`);
+      log(
+        `Conexão com Banco de Dados [DatabaseConnectionGET] estabelecida com sucesso`
+      );
     });
   }
 

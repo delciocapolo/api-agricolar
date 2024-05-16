@@ -16,6 +16,7 @@ import {
   EmployeeTypeSchema
 } from "../@types/farmer";
 import { BCRYPT_SALT } from "../../../../utils/EnvConfigs";
+import MessageHeath from "../../../../DTO/MessageHeath";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(
@@ -28,19 +29,26 @@ const database = new DatabaseConnectionPOST();
 export const resolvers = {
   Date: DATESCALAR,
   Query: {
-    done() {
-      return "Create user route defined!"
+    health() {
+      return MessageHeath("POST Farmer");
     },
   },
   Mutation: {
-    createFarmer: async (_: any, { fazendeiro, localizacao }: FarmerInputType, ctx: any) => {
+    createFarmer: async (
+      _: any,
+      { fazendeiro, localizacao }: FarmerInputType,
+      ctx: any
+    ) => {
       const __ = ctx.token;
 
       const that = { ...fazendeiro };
       const salt = bcrypt.genSaltSync(BCRYPT_SALT);
       const hash = bcrypt.hashSync(that.senha, salt);
       const transformed = { ...that, senha: hash };
-      const response = await database.createFarmer({ fazendeiro: transformed, localizacao });
+      const response = await database.createFarmer({
+        fazendeiro: transformed,
+        localizacao,
+      });
 
       if (!response) {
         console.error("An Error, trying create [Farmer]");
@@ -49,10 +57,14 @@ export const resolvers = {
 
       return response;
     },
-    createFarm: async (_: any, { id_fazendeiro, farm }: FarmInputType, ctx: any) => {
+    createFarm: async (
+      _: any,
+      { id_fazendeiro, farm }: FarmInputType,
+      ctx: any
+    ) => {
       try {
-        if (!farm || typeof farm !== 'object') {
-          throw new Error('Objeto \"fazenda\" não foi fornecido corretamente.');
+        if (!farm || typeof farm !== "object") {
+          throw new Error('Objeto "fazenda" não foi fornecido corretamente.');
         }
         const __ = ctx.token;
         const row = await database.createFarm({ farm, id_fazendeiro });
@@ -62,22 +74,25 @@ export const resolvers = {
           return;
         }
 
-        if (Object.keys(row).includes('message')) {
+        if (Object.keys(row).includes("message")) {
           console.error(row);
           return;
         }
 
         return row as Fazenda;
       } catch (error) {
-        console.error('AN ERROR OCCOURS, TRYING CREATE FARM: ');
+        console.error("AN ERROR OCCOURS, TRYING CREATE FARM: ");
         console.error(error);
       }
     },
-    createProduct: async (_: any, { id_fazenda, nome_categoria, produto }: ProductTypeInput) => {
+    createProduct: async (
+      _: any,
+      { id_fazenda, nome_categoria, produto }: ProductTypeInput
+    ) => {
       const response = await database.createProduct({
         id_fazenda,
         nome_categoria,
-        produto
+        produto,
       });
 
       if (!response) {
@@ -85,17 +100,20 @@ export const resolvers = {
         return;
       }
 
-      if (Object.keys(response).includes('message')) {
+      if (Object.keys(response).includes("message")) {
         console.log(response);
         return;
       }
 
       return response as Produto;
     },
-    sellProduct: async (_: any, { id_consumidor, id_produto }: SellProductInputType) => {
+    sellProduct: async (
+      _: any,
+      { id_consumidor, id_produto }: SellProductInputType
+    ) => {
       const response = await database.sellProduct({
         id_consumidor,
-        id_produto
+        id_produto,
       });
 
       if (!response) {
@@ -103,14 +121,17 @@ export const resolvers = {
         return;
       }
 
-      if (Object.keys(response).includes('message')) {
+      if (Object.keys(response).includes("message")) {
         console.error(response);
-        return
+        return;
       }
 
       return response as Produto;
     },
-    createEmployee: async (_: any, { id_consumidor, id_fazenda }: EmplyeeInputType) => {
+    createEmployee: async (
+      _: any,
+      { id_consumidor, id_fazenda }: EmplyeeInputType
+    ) => {
       const row = await database.createEmployee({
         id_fazenda,
         id_consumidor,
@@ -121,12 +142,12 @@ export const resolvers = {
         return;
       }
 
-      if (Object.keys(row).includes('message')) {
+      if (Object.keys(row).includes("message")) {
         console.error(row);
         return;
       }
 
       return row as EmployeeTypeSchema;
-    }
-  }
+    },
+  },
 };

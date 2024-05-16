@@ -1,3 +1,6 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+
 scalar Date
 
 enum Sexo {
@@ -11,14 +14,14 @@ enum Role {
   Employee
 }
 
-type LocalizacaoSchema {
+type LocalizacaoSchema @key(fields: "id_localizacao") {
   id_localizacao: ID
   provincia: String
   cidade: String
   createdAt: Date
 }
 
-type FarmSchema {
+type FarmSchema @key(fields: "id_fazenda") {
   id_fazenda: ID!
   nome_fazenda: String!
   createAt: Date
@@ -26,7 +29,7 @@ type FarmSchema {
   fazendeiro_id_fazendeiro: String
 }
 
-type CostumerSchema {
+type CostumerSchema @key(fields: "id_consumidor") {
   id_consumidor: ID
   nome_consumidor: String
   email: String
@@ -42,13 +45,13 @@ type CostumerSchema {
   localizacao_id_localizacao: String
 }
 
-type CategoriaSchema {
+type CategoriaSchema @key(fields: "id_categoria") {
   id_categoria: Int
   nome_categoria: String
   createdAt: Date
 }
 
-type ProductSchema {
+type ProductSchema @key(fields: "id_produto") {
   id_produto: ID!
   nome_produto: String
   preco_produto: Float
@@ -62,7 +65,7 @@ type ProductSchema {
   updatedAt: Date
 }
 
-type EmployeeSchema {
+type EmployeeSchema @key(fields: "id_colaborador") {
   id_colaborador: String
   entidade_id_fazenda: String
   empregado_id_consumidor: String
@@ -83,7 +86,7 @@ input FazendeiroInput {
   data_nascimento: String
 }
 
-type FazendeiroSchema {
+type FazendeiroSchema @key(fields: "id_fazendeiro") {
   id_fazendeiro: ID
   nome_fazendeiro: String
   email: String
@@ -115,13 +118,20 @@ input ProductInput {
 }
 
 type Query {
-  done: String!
+  health: String!
 }
 
 type Mutation {
-  createFarmer(fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroSchema
+  createFarmer(
+    fazendeiro: FazendeiroInput
+    localizacao: LocalizacaoInput
+  ): FazendeiroSchema
   createFarm(id_fazendeiro: String!, farm: FazendaInput): FarmSchema
-  createProduct(id_fazenda: String!, nome_categoria: String!, produto: ProductInput): ProductSchema
+  createProduct(
+    id_fazenda: String!
+    nome_categoria: String!
+    produto: ProductInput
+  ): ProductSchema
   sellProduct(id_consumidor: ID!, id_produto: ID!): ProductSchema
   createEmployee(id_fazenda: ID!, id_consumidor: ID!): CreateEmployeeSchema
 }
