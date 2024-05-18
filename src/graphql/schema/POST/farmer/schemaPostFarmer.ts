@@ -15,8 +15,10 @@ import {
   SellProductInputType,
   EmployeeTypeSchema
 } from "../@types/farmer";
-import { BCRYPT_SALT } from "../../../../utils/EnvConfigs";
+import { BCRYPT_SALT, JWT_SECRET } from "../../../../utils/EnvConfigs";
 import MessageHeath from "../../../../DTO/MessageHeath";
+import AnError from "../../helpers/AnError";
+import jwt from "jsonwebtoken";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(
@@ -40,22 +42,30 @@ export const resolvers = {
       ctx: any
     ) => {
       const __ = ctx.token;
-
-      const that = { ...fazendeiro };
+      const that = structuredClone(fazendeiro);
       const salt = bcrypt.genSaltSync(BCRYPT_SALT);
-      const hash = bcrypt.hashSync(that.senha, salt);
+      const hash = bcrypt.hashSync(that['senha'], salt);
       const transformed = { ...that, senha: hash };
       const response = await database.createFarmer({
         fazendeiro: transformed,
         localizacao,
       });
 
-      if (!response) {
+      if (!response || AnError(response)) {
         console.error("An Error, trying create [Farmer]");
+        console.error(response);
         return null;
       }
 
-      return response;
+      const payload = {
+        email: that["email"],
+        name: that["email"].split("@")[0],
+      };
+      const token = jwt.sign(payload, JWT_SECRET, {
+        expiresIn: "30d",
+      });
+
+      return { token };
     },
     createFarm: async (
       _: any,

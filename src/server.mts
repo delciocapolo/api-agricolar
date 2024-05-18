@@ -11,7 +11,7 @@ import serverCostumerCreate from "./graphql/schema/POST/costumer/serverPostCostu
 import serverGeneralEndpoint from "./graphql/schema/GET/set/serverGetSet";
 import serverGetFarmerRoute from "./graphql/schema/GET/farmer/serverGetFarmer";
 // Servidor -> Serviço
-import getCredentialRoute from "./services/ExistenceBIOrNIF/route";
+import getCredentialRoute from "./services/ExistenceBIOrNIF/routeNIF";
 
 // Utils
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";

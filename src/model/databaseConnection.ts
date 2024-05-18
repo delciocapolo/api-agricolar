@@ -202,13 +202,6 @@ export class DatabaseConnectionPOST {
 
   async createFarmer({ fazendeiro, localizacao }: FarmerInputType) {
     try {
-      if (Array.isArray(fazendeiro)) {
-        const data = await this.prisma["fazendeiro"].createMany({
-          data: fazendeiro,
-        });
-        return data;
-      }
-
       const exists = await this.prisma["fazendeiro"].findUnique({
         where: {
           email: fazendeiro.email,
@@ -217,7 +210,7 @@ export class DatabaseConnectionPOST {
 
       if (exists !== null) {
         const object_error = {
-          message: "O FAZENDEIRO JA EXISTE",
+          error: "O FAZENDEIRO JA EXISTE",
           path: "createFarmer method's class",
         };
         return object_error;
@@ -238,6 +231,14 @@ export class DatabaseConnectionPOST {
             },
           },
         },
+        select: {
+          id_fazendeiro: true,
+          nome_fazendeiro: true,
+          caminho_foto_fazendeiro: true,
+          email: true,
+          createdAt: true,
+          sexo: true
+        }
       });
       return data;
     } catch (error) {

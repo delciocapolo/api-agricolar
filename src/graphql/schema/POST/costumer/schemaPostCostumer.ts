@@ -8,6 +8,9 @@ import { DatabaseConnectionPOST } from "../../../../model/databaseConnection";
 import MessageHeath from "../../../../DTO/MessageHeath";
 import type { Cart, CustomerInputType, CustomerSchemaType, LocalizacaoInputType, WishListType } from "./@types/CustomerInput";
 import AnError from "../../helpers/AnError";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { BCRYPT_SALT, JWT_SECRET } from "../../../../utils/EnvConfigs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const typeDefs = gql(readFileSync(path.resolve(__dirname, 'schema.graphql'), { encoding: 'utf-8' }));
@@ -31,14 +34,25 @@ export const resolvers = {
         localizacao: LocalizacaoInputType;
       }
     ) => {
-      const row = await database.createCostumer(consumidor, localizacao);
+      const that = structuredClone(consumidor);
+      const salt = bcrypt.genSaltSync(BCRYPT_SALT);
+      const hash = bcrypt.hashSync(that['senha'], salt);
+      const transformed = {...that, senha: hash};
+      const row = await database.createCostumer(transformed, localizacao);
 
       if (row && AnError(row)) {
         console.log(row);
         return null;
       }
+      const payload = {
+        email: that['email'],
+      };
+      const token = jwt.sign(payload, JWT_SECRET, {
+        expiresIn: "30d",
+      });
 
       const datas = row as unknown as CustomerSchemaType;
+      datas["token"] = token;
       return datas;
     },
     addToWishList: async (

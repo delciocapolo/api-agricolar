@@ -109,13 +109,13 @@ export const resolvers = {
         // TODO: criar a funcao responsavel por retornar um unico client, pelo ID
         client: async (_: any, { id_client, id_fazenda }: FazendaAndClient) => {
             const row = await database.fromFarmGetClient(id_fazenda, id_client);
-
+            console.log(row);
             if (!row || Object.keys(row).includes('message')) {
                 console.error(row);
                 return;
             }
-            const transform = row as unknown as ClientOnlyType;
-            return transform;
+            const transform = row as unknown as ClientOnlyType[];
+            return transform[0];
         },
         clients: async (_: any, { id_fazenda }: FazendaAndClient) => {
             const rows = await database.fromFarmGetClients(id_fazenda);

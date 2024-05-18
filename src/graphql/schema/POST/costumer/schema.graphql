@@ -57,6 +57,7 @@ type ConsumidorSchema @key(fields: "id_consumidor") {
   caminho_foto_consumidor: String
   createAt: Date
   localizacao: SimpleLocalizacaoSchema
+  token: ID!
 }
 
 type CategoriaSchema @key(fields: "id_categoria") {

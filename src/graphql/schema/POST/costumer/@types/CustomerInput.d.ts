@@ -27,6 +27,7 @@ export type CustomerSchemaType = {
     provincia: string;
     cidade: string;
   };
+  token?: string;
 };
 
 export type LocalizacaoInputType = {

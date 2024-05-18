@@ -9,11 +9,11 @@ export type FarmerInputType = {
         caminho_foto_fazendeiro: string;
         sexo: Sexo;
         senha: string;
-    }
+    };
     localizacao: {
         cidade: string;
         provincia: string;
-    }
+    };
 }
 
 export type FarmInputType = {
