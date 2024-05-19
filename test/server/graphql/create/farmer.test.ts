@@ -64,7 +64,7 @@ describe('Creating Datas to the Farmer Server', () => {
                 createFarm(id_fazendeiro: $idFazendeiro, farm: $farm) {
                     id_fazenda
                     nome_fazenda
-                    createAt
+                    createdAt
                     updatedAt
                     fazendeiro_id_fazendeiro
                 }
@@ -102,7 +102,7 @@ describe('Creating Datas to the Farmer Server', () => {
                 servico_entrega_disponivel
                 disponivel
                 fazenda_id_fazenda
-                createAt
+                createdAt
                 updatedAt
                 }
               }`,
@@ -142,7 +142,7 @@ describe('Creating Datas to the Farmer Server', () => {
                     servico_entrega_disponivel
                     disponivel
                     fazenda_id_fazenda
-                    createAt
+                    createdAt
                     updatedAt
                 }
             }`,
@@ -186,7 +186,7 @@ describe('Creating Datas to the Farmer Server', () => {
                   entidade {
                     id_fazenda
                     nome_fazenda
-                    createAt
+                    createdAt
                     updatedAt
                     fazendeiro_id_fazendeiro
                   }

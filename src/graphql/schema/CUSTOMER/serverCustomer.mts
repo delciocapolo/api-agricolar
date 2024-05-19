@@ -6,7 +6,7 @@ import { debuglog } from "node:util";
 
 import { ApolloServer } from "@apollo/server";
 import { ContextAPI } from "../helpers/ContextType";
-import { resolvers, typeDefs } from "./schemaPostCostumer";
+import { resolvers, typeDefs } from "./schemaCustomer";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { CUSTOMER_SERVER_PORT } from "../../../utils/EnvConfigs";

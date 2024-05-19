@@ -1,0 +1,282 @@
+schema
+  @link(url: "https://specs.apollo.dev/link/v1.0")
+  @link(url: "https://specs.apollo.dev/join/v0.3", for: EXECUTION)
+{
+  query: Query
+  mutation: Mutation
+}
+
+directive @join__enumValue(graph: join__Graph!) repeatable on ENUM_VALUE
+
+directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet, type: String, external: Boolean, override: String, usedOverridden: Boolean) repeatable on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+directive @join__implements(graph: join__Graph!, interface: String!) repeatable on OBJECT | INTERFACE
+
+directive @join__type(graph: join__Graph!, key: join__FieldSet, extension: Boolean! = false, resolvable: Boolean! = true, isInterfaceObject: Boolean! = false) repeatable on OBJECT | INTERFACE | UNION | ENUM | INPUT_OBJECT | SCALAR
+
+directive @join__unionMember(graph: join__Graph!, member: String!) repeatable on UNION
+
+directive @link(url: String, as: String, for: link__Purpose, import: [link__Import]) repeatable on SCHEMA
+
+type CarrinhoSchema
+  @join__type(graph: COSTUMER)
+{
+  id_carrinho: ID
+  produto_id_produto: String
+  consumidor_id_consumidor: ID
+  createdAt: Date
+}
+
+type CategoriaSchema
+  @join__type(graph: FARMER)
+{
+  id_categoria: Int
+  nome_categoria: String
+  createdAt: Date
+}
+
+input ConsumidorInput
+  @join__type(graph: COSTUMER)
+{
+  nome_consumidor: String
+  email: String
+  numero_telefone: String
+  senha: String
+  sexo: Sexo
+  data_nascimento: Date
+  caminho_foto_consumidor: String
+}
+
+type ConsumidorSchema
+  @join__type(graph: COSTUMER, key: "id_consumidor")
+  @join__type(graph: FARMER, key: "id_consumidor", extension: true)
+  @join__type(graph: SET, key: "id_consumidor", extension: true)
+{
+  id_consumidor: ID
+  nome_consumidor: String @join__field(graph: COSTUMER)
+  email: String @join__field(graph: COSTUMER)
+  numero_telefone: String @join__field(graph: COSTUMER)
+  sexo: Sexo @join__field(graph: COSTUMER)
+  data_nascimento: Date @join__field(graph: COSTUMER)
+  caminho_foto_consumidor: String @join__field(graph: COSTUMER)
+  createdAt: Date @join__field(graph: COSTUMER)
+  localizacao: LocalizacaoSchema @join__field(graph: COSTUMER)
+}
+
+type ConsumidorTokenSchema
+  @join__type(graph: COSTUMER)
+{
+  consumidor: ConsumidorSchema
+  token: ID!
+}
+
+scalar Date
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+  @join__type(graph: SET)
+
+type EmployeeSchema
+  @join__type(graph: FARMER)
+{
+  id_colaborador: String
+  entidade: FazendaSchema
+  referencia_consumidor: ConsumidorSchema
+}
+
+type FazendaFavoritaSchema
+  @join__type(graph: COSTUMER)
+{
+  id_fazenda_favorita: ID
+  consumidor_id_consumidor: ID
+  fazenda_id_fazenda: String
+  createdAt: Date
+}
+
+input FazendaInput
+  @join__type(graph: FARMER)
+{
+  nome_fazenda: String!
+  nif: String!
+}
+
+type FazendaSchema
+  @join__type(graph: FARMER, key: "id_fazenda")
+{
+  id_fazenda: ID!
+  nome_fazenda: String!
+  quantidade_clientes: Int
+  createdAt: Date
+  fazendeiro_id_fazendeiro: String
+  nif: ID
+}
+
+input FazendeiroInput
+  @join__type(graph: FARMER)
+{
+  nome_fazendeiro: String
+  email: String
+  senha: String!
+  caminho_foto_fazendeiro: String
+  sexo: Sexo
+  data_nascimento: Date
+  bi: String!
+}
+
+type FazendeiroSchema
+  @join__type(graph: FARMER, key: "id_fazendeiro")
+  @join__type(graph: SET, key: "id_fazendeiro", extension: true)
+{
+  id_fazendeiro: ID
+  nome_fazendeiro: String @join__field(graph: FARMER)
+  email: String @join__field(graph: FARMER)
+  quantidade_fazendas: Int @join__field(graph: FARMER)
+  sexo: Sexo @join__field(graph: FARMER)
+  data_nascimento: Date @join__field(graph: FARMER)
+  caminho_foto_fazendeiro: String @join__field(graph: FARMER)
+  createdAt: Date @join__field(graph: FARMER)
+  localizacao: LocalizacaoSchema @join__field(graph: FARMER)
+}
+
+type FazendeiroToken
+  @join__type(graph: FARMER)
+{
+  fazendeiro: FazendeiroSchema
+  token: ID!
+}
+
+scalar join__FieldSet
+
+enum join__Graph {
+  COSTUMER @join__graph(name: "costumer", url: "http://localhost:5050/v1/customer")
+  FARMER @join__graph(name: "farmer", url: "http://localhost:5051/v1/farmer")
+  SET @join__graph(name: "set", url: "http://localhost:5052/v1/set")
+}
+
+scalar link__Import
+
+enum link__Purpose {
+  """
+  `SECURITY` features provide metadata necessary to securely resolve fields.
+  """
+  SECURITY
+
+  """
+  `EXECUTION` features provide metadata necessary for operation execution.
+  """
+  EXECUTION
+}
+
+input LocalizacaoInput
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+{
+  provincia: String
+  cidade: String
+}
+
+type LocalizacaoSchema
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+{
+  cidade: String
+  provincia: String
+}
+
+type Mutation
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+{
+  createCostumer(consumidor: ConsumidorInput, localizacao: LocalizacaoInput): ConsumidorTokenSchema @join__field(graph: COSTUMER)
+  addToWishList(id_consumidor: ID!, id_produto: ID!): Int @join__field(graph: COSTUMER)
+  addToCart(id_consumidor: ID!, id_produto: ID!): Int @join__field(graph: COSTUMER)
+  createFavoriteFarm(id_consumidor: ID!, id_fazenda: ID!): FazendaFavoritaSchema @join__field(graph: COSTUMER)
+  createFarmer(fazendeiro: FazendeiroInput, localizacao: LocalizacaoInput): FazendeiroToken @join__field(graph: FARMER)
+  createFarm(id_fazendeiro: String!, farm: FazendaInput): FazendaSchema @join__field(graph: FARMER)
+  createProduct(id_fazenda: String!, nome_categoria: String!, produto: ProdutoInput): ProdutoSchema @join__field(graph: FARMER)
+  sellProduct(id_consumidor: ID!, id_produto: ID!): ProdutoSchema @join__field(graph: FARMER)
+  createEmployee(id_fazenda: ID!, id_consumidor: ID!): Int @join__field(graph: FARMER)
+}
+
+input ProdutoInput
+  @join__type(graph: FARMER)
+{
+  nome_produto: String
+  preco_produto: Float
+  caminho_foto_produto: String
+  descricao: String
+  servico_entrega_disponivel: Boolean
+}
+
+type ProdutoSchema
+  @join__type(graph: FARMER, key: "id_produto")
+  @join__type(graph: SET, key: "id_produto", extension: true)
+{
+  id_produto: ID
+  nome_produto: String @join__field(graph: FARMER)
+  preco_produto: Float @join__field(graph: FARMER)
+  categoria: CategoriaSchema @join__field(graph: FARMER)
+  caminho_foto_produto: String @join__field(graph: FARMER)
+  descricao: String @join__field(graph: FARMER)
+  servico_entrega_disponivel: Boolean @join__field(graph: FARMER)
+  disponivel: Boolean @join__field(graph: FARMER)
+  fazenda_id_fazenda: ID @join__field(graph: FARMER)
+  createdAt: Date @join__field(graph: FARMER)
+}
+
+type Query
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+  @join__type(graph: SET)
+{
+  health: String! @join__field(graph: COSTUMER)
+  sold(id_fazenda: ID!, id_monitoramento: ID!): ProdutoSchema @join__field(graph: FARMER)
+  solds(id_fazenda: ID!): [ProdutoSchema] @join__field(graph: FARMER)
+  productsByFarm(id_fazenda: ID!): [ProdutoSchema] @join__field(graph: FARMER)
+  stock(id_fazenda: ID!): [StockSchema] @join__field(graph: FARMER)
+  product(id_fazenda: ID!, id_product: ID!): ProdutoSchema @join__field(graph: FARMER)
+  productByCategory(id_categoria: Int!): [ProdutoSchema] @join__field(graph: FARMER)
+  clients(id_fazenda: ID!): [ConsumidorSchema] @join__field(graph: FARMER)
+  client(id_fazenda: ID!, id_client: ID!): ConsumidorSchema @join__field(graph: FARMER)
+  statistics(id_fazenda: ID!): [ConsumidorSchema] @join__field(graph: FARMER)
+  costumers(limit: Int): [ConsumidorSchema] @join__field(graph: SET)
+  farmers(limit: Int): [FazendeiroSchema] @join__field(graph: SET)
+  products(limit: Int): [ProdutoSchema] @join__field(graph: SET)
+  user(email: String): UserSchema @join__field(graph: SET)
+}
+
+enum Sexo
+  @join__type(graph: COSTUMER)
+  @join__type(graph: FARMER)
+{
+  M @join__enumValue(graph: COSTUMER) @join__enumValue(graph: FARMER)
+  F @join__enumValue(graph: COSTUMER) @join__enumValue(graph: FARMER)
+}
+
+type StockSchema
+  @join__type(graph: FARMER)
+{
+  id_stock: ID
+  nome_produto: String
+  quantidade_disponivel: Int
+  stock_inicial: Int
+  createdAt: Date
+  fazenda_id_fazenda: String
+}
+
+type UserSchema
+  @join__type(graph: SET)
+{
+  field: String
+  status: Boolean
+}
+
+type WishListSchema
+  @join__type(graph: COSTUMER)
+{
+  id_produto_favorito: ID
+  produto_id_produto: String
+  consumidor_id_consumidor: ID
+  createdAt: Date
+}

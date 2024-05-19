@@ -1,15 +1,15 @@
 federation_version: =2.3.2
 subgraphs:
   set:
-    routing_url: http://127.0.0.1:5055/v1/set
+    routing_url: http://localhost:5052/v1/set
     schema:
-      subgraph_url: http://127.0.0.1:5055/v1/set
+      subgraph_url: http://localhost:5052/v1/set
   farmer:
-    routing_url: http://127.0.0.1:5055/v1/farmer/create
+    routing_url: http://localhost:5051/v1/farmer
     schema:
-      subgraph_url: http://127.0.0.1:5055/v1/farmer/create
+      subgraph_url: http://localhost:5051/v1/farmer
   costumer:
-    routing_url: http://127.0.0.1:5055/v1/costumer/create
+    routing_url: http://localhost:5050/v1/customer
     schema:
-      subgraph_url: http://127.0.0.1:5055/v1/costumer/create
+      subgraph_url: http://localhost:5050/v1/customer
   

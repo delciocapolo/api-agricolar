@@ -6,11 +6,15 @@
     "node": "20.11.1"
   },
   "scripts": {
-    "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
-    "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.ts",
+    "test": "tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
+    "server:set": "node --watch --env-file=.env --import tsx ./bundle/src/graphql/schema/CUSTOMER/serverCustomer.mjs",
+    "server:farmer": "node --watch --env-file=.env --import tsx ./bundle/src/graphql/schema/FARMER/serverFarmer.mjs",
+    "server:customer": "node --watch --env-file=.env --import tsx ./bundle/src/graphql/schema/SET/serverSet.mjs",
+    "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:*,CustomerServer,SetServer,FarmerServer concurrently npm:server:*",
     "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --env-file=.env ./dist/bundle.js",
-    "up": "pm2 --name AgricolarServer start npm -- start --watch --ignore-watch=node_modules",
-    "build": "webpack"
+    "up": "pm2 start ecosystem.config.js",
+    "build": "tsc",
+    "graphql:compose": "cd ./router && ./router --supergraph=prod-schema.graphql && cd .."
   },
   "type": "module",
   "repository": {
@@ -40,6 +44,7 @@
     "@prisma/internals": "^5.12.1",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "env-var": "^7.4.1",
@@ -60,6 +65,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.12.2",
     "@types/supertest": "^6.0.2",
+    "concurrency": "^0.1.4",
     "copy-webpack-plugin": "^12.0.2",
     "coverage": "^0.4.1",
     "loadtest": "^8.0.9",

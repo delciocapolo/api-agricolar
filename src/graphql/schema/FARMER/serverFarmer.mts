@@ -4,7 +4,7 @@ import cors, {CorsRequest} from "cors";
 import { expressMiddleware } from "@apollo/server/express4";
 
 import { ApolloServer } from "@apollo/server";
-import {resolvers,typeDefs} from "./schemaGetFarmer";
+import {resolvers,typeDefs} from "./schemaFarmer";
 import { buildSubgraphSchema,  } from "@apollo/subgraph";
 import { ContextAPI } from "../helpers/ContextType";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";

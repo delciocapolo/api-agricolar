@@ -1,5 +1,5 @@
-export default function AnError(row: object) {
-    if (!row || Object.keys(row).includes("error")) {
+export default function AnError<T extends object>(row: T) {
+    if ("error" in row) {
       return true;
     }
 

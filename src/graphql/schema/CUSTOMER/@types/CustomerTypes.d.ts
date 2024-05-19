@@ -1,19 +1,15 @@
+import { LocalizacaoType } from "../../../@types/graphqlType";
+
 type Sexo = "M" | "F";
 
-export type CustomerInputType = {
-  nome_consumidor: string;
-  email: string;
-  numero_telefone: string;
-  senha: string;
-  sexo: Sexo;
-  caminho_foto_consumidor: string;
-  data_nascimento: string | Date;
-  localizacao: {
-      cidade: string;
-      provincia: string;
-  };
+// Types | Schema
+export type FazendaSchemaType = {
+  id_fazenda: string;
+  nome_fazenda: string;
+  createdAt: Date;
+  updatedAt: Date;
+  fazendeiro_id_fazendeiro: string;
 };
-
 export type CustomerSchemaType = {
   id_consumidor: string;
   nome_consumidor: string;
@@ -22,18 +18,9 @@ export type CustomerSchemaType = {
   sexo: Sexo;
   data_nascimento: Date;
   caminho_foto_consumidor: string;
-  createAt: Date;
-  localizacao: {
-    provincia: string;
-    cidade: string;
-  };
-  token?: string;
+  createdAt: Date;
+  localizacao: LocalizacaoType;
 };
-
-export type LocalizacaoInputType = {
-    cidade: string;
-    provincia: string;
-}
 
 export type WishListType = {
   id_produto_favorito: string | null;
@@ -42,6 +29,7 @@ export type WishListType = {
   createdAt: Date;
   updatedAt: Date;
 };
+
 export type Cart = {
   id_carrinho: string | null;
   produto_id_produto: string;
@@ -49,3 +37,17 @@ export type Cart = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+// Inputs
+export type CustomerInputType = {
+  nome_consumidor: string;
+  email: string;
+  numero_telefone: string;
+  senha: string;
+  sexo: Sexo;
+  caminho_foto_consumidor: string;
+  data_nascimento: string | Date;
+};
+
+
+// Input Schema

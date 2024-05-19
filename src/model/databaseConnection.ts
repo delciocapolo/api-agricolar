@@ -1,4 +1,5 @@
 import {
+  Fazenda,
   PrismaClient,
 } from "@prisma/client";
 import type {
@@ -8,10 +9,65 @@ import type {
   CreateEmployeetype,
 } from "./@types/type";
 import { debuglog } from "util";
-import type { FarmInputType, FarmerInputType, ProductTypeInput, SellProductInputType } from "../graphql/schema/POST/@types/farmer";
-import type { CustomerInputType, LocalizacaoInputType } from "../graphql/schema/POST/costumer/@types/CustomerInput";
+import { ErrorObjectType, LocalizacaoType } from "../graphql/@types/graphqlType";
+import { CustomerInputType } from "../graphql/schema/CUSTOMER/@types/CustomerTypes";
 
 const log = debuglog('database');
+
+
+const selectLocalizacao = {
+  select: {
+    cidade: true,
+    provincia: true,
+  },
+};
+const selectCategoria = {
+  select: {
+    nome_categoria: true,
+  },
+};
+const selectConsumidor = {
+  id_consumidor: true,
+  nome_consumidor: true,
+  email: true,
+  numero_telefone: true,
+  sexo: true,
+  data_nascimento: true,
+  caminho_foto_consumidor: true,
+  createdAt: true,
+  localizacao: selectLocalizacao,
+};
+const selectFazendeiro = {
+  id_fazendeiro: true,
+  nome_fazendeiro: true,
+  email: true,
+  sexo: true,
+  caminho_foto_fazendeiro: true,
+  data_nascimento: true,
+  quantidade_fazendas: true,
+  createdAt: true,
+  localizacao: selectLocalizacao,
+};
+const selectProduto = {
+  id_produto: true,
+  nome_produto: true,
+  descricao: true,
+  preco_produto: true,
+  disponivel: true,
+  caminho_foto_produto: true,
+  servico_entrega_disponivel: true,
+  createdAt: true,
+  categoria: selectCategoria,
+  fazenda_id_fazenda: true,
+};
+
+const selectFazenda = {
+  id_fazenda: true,
+  nome_fazenda: true,
+  quantidade_clientes: true,
+  createdAt: true,
+  fazendeiro_id_fazendeiro: true,
+};
 
 export class DatabaseConnectionPOST {
   private prisma: PrismaClient;
@@ -25,9 +81,9 @@ export class DatabaseConnectionPOST {
     });
   }
   // metodos para consumidores
-  async createCostumer(
+  async createCustomer(
     consumidor: CustomerInputType,
-    localizacao: LocalizacaoInputType
+    localizacao: LocalizacaoType
   ) {
     try {
       const exists = await this.prisma["consumidor"].findUnique({
@@ -37,10 +93,11 @@ export class DatabaseConnectionPOST {
       });
 
       if (exists !== null) {
-        const object_error = {
-          error: "O CONSUMIDOR JA EXISTE",
-          path: "createCostumer method's class",
+        const object_error: ErrorObjectType = {
+          error: "Esta conta já existe",
+          path: ["createCostumer method's class"],
         };
+
         return object_error;
       }
 
@@ -60,22 +117,7 @@ export class DatabaseConnectionPOST {
             },
           },
         },
-        select: {
-          id_consumidor: true,
-          nome_consumidor: true,
-          email: true,
-          data_nascimento: true,
-          numero_telefone: true,
-          sexo: true,
-          caminho_foto_consumidor: true,
-          createdAt: true,
-          localizacao: {
-            select: {
-              cidade: true,
-              provincia: true,
-            },
-          },
-        },
+        select: selectConsumidor
       });
 
       return data;
@@ -87,9 +129,12 @@ export class DatabaseConnectionPOST {
     }
   }
 
-  async fromCustomerAddToWishList({ id_consumidor, id_produto }: CostumerAndProductType) {
+  async fromCustomerAddToWishList({
+    id_consumidor,
+    id_produto,
+  }: CostumerAndProductType) {
     try {
-      const alreadyExistsInWishList = await this.prisma[
+      const exists = await this.prisma[
         "produtoFavorito"
       ].findUnique({
         where: {
@@ -100,10 +145,10 @@ export class DatabaseConnectionPOST {
         },
       });
 
-      if (alreadyExistsInWishList !== null) {
-        const object_error = {
+      if (exists !== null) {
+        const object_error: ErrorObjectType = {
           error: "O PRODUTO JA ESTA NA LISTA DE FAVORITOS",
-          path: "createWishList method's class",
+          path: ["createWishList method's class"],
         };
         return object_error;
       }
@@ -113,7 +158,12 @@ export class DatabaseConnectionPOST {
           consumidor_id_consumidor: id_consumidor,
           produto_id_produto: id_produto,
         },
+        select: {
+          id_produto_favorito: true,
+          createdAt: true
+        }
       });
+      
       return data;
     } catch (error) {
       console.error("CREATE WISH LIST, [ERROR]: ");
@@ -125,9 +175,7 @@ export class DatabaseConnectionPOST {
 
   async addToCart({ id_consumidor, id_produto }: CostumerAndProductType) {
     try {
-      const alreadyExistsInWishList = await this.prisma[
-        "carrinho"
-      ].findUnique({
+      const exists = await this.prisma["carrinho"].findUnique({
         where: {
           produto_id_produto_consumidor_id_consumidor: {
             consumidor_id_consumidor: id_consumidor,
@@ -136,8 +184,8 @@ export class DatabaseConnectionPOST {
         },
       });
 
-      if (alreadyExistsInWishList !== null) {
-        const object_error = {
+      if (exists !== null) {
+        const object_error: ErrorObjectType = {
           error: "O PRODUTO JA ESTA NO CARRINHO",
           path: "addToCarts method's class",
         };
@@ -149,6 +197,10 @@ export class DatabaseConnectionPOST {
           consumidor_id_consumidor: id_consumidor,
           produto_id_produto: id_produto,
         },
+        select: {
+          id_carrinho: true,
+          createdAt: true
+        }
       });
       return data;
     } catch (error) {
@@ -164,16 +216,17 @@ export class DatabaseConnectionPOST {
     id_fazenda,
   }: CostumerAndFarmType) {
     try {
-      const alreadyExistsInFavoriteFarm = await this.prisma['fazendaFavorita']
-      .findUnique({
+      const alreadyExistsInFavoriteFarm = await this.prisma[
+        "fazendaFavorita"
+      ].findUnique({
         where: {
           consumidor_id_consumidor_fazenda_id_fazenda: {
             consumidor_id_consumidor: id_consumidor,
-            fazenda_id_fazenda: id_fazenda
-          }
-        }
-      })
-      
+            fazenda_id_fazenda: id_fazenda,
+          },
+        },
+      });
+
       if (alreadyExistsInFavoriteFarm !== null) {
         const object_error = {
           error: "ESTA FAZENDA, JA EXISTE NA LISTA DE FAVORITAS",
@@ -200,7 +253,7 @@ export class DatabaseConnectionPOST {
 
   // Implementacao do CRUD para fazendeiro
 
-  async createFarmer({ fazendeiro, localizacao }: FarmerInputType) {
+  async createFarmer({ fazendeiro, localizacao }: any) {
     try {
       const exists = await this.prisma["fazendeiro"].findUnique({
         where: {
@@ -210,7 +263,7 @@ export class DatabaseConnectionPOST {
 
       if (exists !== null) {
         const object_error = {
-          error: "O FAZENDEIRO JA EXISTE",
+          error: "Esta conta já existe",
           path: "createFarmer method's class",
         };
         return object_error;
@@ -231,15 +284,9 @@ export class DatabaseConnectionPOST {
             },
           },
         },
-        select: {
-          id_fazendeiro: true,
-          nome_fazendeiro: true,
-          caminho_foto_fazendeiro: true,
-          email: true,
-          createdAt: true,
-          sexo: true
-        }
+        select: selectFazendeiro,
       });
+
       return data;
     } catch (error) {
       console.error("CREATE FARMER, [ERROR]: ");
@@ -249,7 +296,7 @@ export class DatabaseConnectionPOST {
     }
   }
 
-  async createFarm({ id_fazendeiro, farm }: FarmInputType) {
+  async createFarm({ id_fazendeiro, farm }: any) {
     try {
       const existsFarmer = await this.prisma["fazendeiro"].findUnique({
         where: {
@@ -262,20 +309,22 @@ export class DatabaseConnectionPOST {
         },
       });
 
+      let object_error: ErrorObjectType = {
+        error: "",
+        path: "createFarm method's class",
+      };
+
       if (existsFarmer === null) {
-        const object_error = {
-          message: "O FAZENDEIRO NAO EXISTE",
-          path: "createFarm method's class",
-        };
+        object_error = { ...object_error, error: "Este fazendeiro não existe" };
         return object_error;
       }
 
       if (existsFarm !== null) {
-        const object_error = {
-          message: `A ${farm.nome_fazenda} FAZENDA JA EXISTE`,
-          path: "createFarm method's class",
-        };
-        return object_error;
+         object_error = {
+           ...object_error,
+           error: `Este nome já sendo utilizado por outra fazenda`,
+         };
+         return object_error;
       }
 
       const data = await this.prisma["fazenda"].create({
@@ -302,17 +351,17 @@ export class DatabaseConnectionPOST {
     id_fazenda,
     nome_categoria,
     produto,
-  }: ProductTypeInput) {
+  }: any) {
     try {
-      const existsFarmer = await this.prisma["fazenda"].findUnique({
+      const exists = await this.prisma["fazenda"].findUnique({
         where: {
           id_fazenda,
         },
       });
 
-      if (existsFarmer === null) {
-        const object_error = {
-          message: "A FAZENDA NAO EXISTE",
+      if (exists === null) {
+        const object_error: ErrorObjectType = {
+          error: "Esta fazenda não existe",
           path: ["createProduct", "DatabaseConnection"],
         };
         return object_error;
@@ -341,6 +390,7 @@ export class DatabaseConnectionPOST {
             },
           },
         },
+        select: selectProduto
       });
 
       return data;
@@ -352,7 +402,7 @@ export class DatabaseConnectionPOST {
     }
   }
 
-  async sellProduct({ id_consumidor, id_produto }: SellProductInputType) {
+  async sellProduct({ id_consumidor, id_produto }: any) {
     try {
       const costumerExists = await this.prisma["consumidor"].findUnique({
         where: {
@@ -368,8 +418,8 @@ export class DatabaseConnectionPOST {
 
       if (productExists === null || costumerExists === null) {
         const not_exists = costumerExists === null ? "CONSUMIDOR" : "PRODUTO";
-        const object_error = {
-          message: `O ${not_exists} NAO EXISTE`,
+        const object_error: ErrorObjectType = {
+          error: `O ${not_exists} NAO EXISTE`,
           path: ["sellProduct", "DatabaseConnectionPOST"],
         };
         return object_error;
@@ -382,6 +432,7 @@ export class DatabaseConnectionPOST {
         data: {
           disponivel: false,
         },
+        select: selectProduto
       });
 
       await this.prisma["monitoramento"].create({
@@ -420,9 +471,20 @@ export class DatabaseConnectionPOST {
       });
 
       if (farmExists === null || costumerExists === null) {
-        const not_exists = farmExists === null ? "Fazenda" : "Consumidor";
-        const object_error = {
-          message: `O/A ${not_exists} NAO EXISTE`,
+        const not_exists = farmExists === null ? "A fazenda" : "O consumidor";
+        const object_error: ErrorObjectType = {
+          error: `${not_exists} não existe`,
+          path: ["createEmployee", "DatabaseConnectionPOST"],
+        };
+        return object_error;
+      }
+
+      const _ = await this.prisma
+        .$queryRaw`SELECT * FROM employee WHERE empregado_id_consumidor = ${id_consumidor}`;
+
+      if (Array(_).length !== 0) {
+        const object_error: ErrorObjectType = {
+          error: `${costumerExists['nome_consumidor']} já é um funcionário da sua empresa`,
           path: ["createEmployee", "DatabaseConnectionPOST"],
         };
         return object_error;
@@ -450,10 +512,11 @@ export class DatabaseConnectionPOST {
             },
           },
         },
-        include: {
-          empregado: true,
-          entidade: true,
-        },
+        // habilitando isto, o resultado sera o mesmo no schema.graphql para EmployyeSchema
+        // include: {
+        //   empregado: true,
+        //   entidade: true,
+        // },
       });
 
       return data;
@@ -480,10 +543,14 @@ export class DatabaseConnectionPOST {
       });
 
       if (costumer === null || farm === null) {
-        costumer === null
-          ? console.error("This [User] doesn't exists")
-          : console.error("This [Farm] doesn't exists");
-        return;
+        const not_exists = costumer === null
+          ? 'O usuário'
+          : 'A fazenda'
+        const object_error: ErrorObjectType = {
+          error: `${not_exists} não existe`,
+          path: ['createClient', 'DatabaseConnectionPOST']
+        }
+        return object_error;
       }
 
       const client = await this.prisma["clienteDaFazenda"].create({
@@ -518,7 +585,7 @@ export class DatabaseConnectionGET {
   private prisma: PrismaClient;
   constructor() {
     this.prisma = new PrismaClient();
-    this.prisma.$connect().then(_ => {
+    this.prisma.$connect().then((_) => {
       log(
         `Conexão com Banco de Dados [DatabaseConnectionGET] estabelecida com sucesso`
       );
@@ -531,17 +598,13 @@ export class DatabaseConnectionGET {
       if (limit) {
         const rows = await this.prisma["consumidor"].findMany({
           take: limit,
+          select: selectConsumidor,
         });
         return rows;
       }
-      const rows = await this.prisma["consumidor"].findMany();
-      if (!rows || rows.length === 0) {
-        const object_error = {
-          message: "THERE ARE NOT COSTUMERS",
-          path: ['getCostumers', 'DatabaseConnectionGET']
-        };
-        return object_error;
-      }
+      const rows = await this.prisma["consumidor"].findMany({
+        select: selectConsumidor,
+      });
       return rows;
     } catch (error) {
       console.error("ERROR TO GET USERS");
@@ -556,17 +619,13 @@ export class DatabaseConnectionGET {
       if (limit) {
         const farmers = await this.prisma["fazendeiro"].findMany({
           take: limit,
+          select: selectFazendeiro,
         });
         return farmers;
       }
-      const rows = await this.prisma["fazendeiro"].findMany();
-      if (!rows || rows.length === 0) {
-        const object_error = {
-          message: "THERE ARE NOT FARMERS",
-          path: ['getFarmers', 'DatabaseConnectionGET']
-        };
-        return object_error;
-      }
+      const rows = await this.prisma["fazendeiro"].findMany({
+        select: selectFazendeiro,
+      });
       return rows;
     } catch (error) {
       console.error("ERROR TO GET FARMER");
@@ -581,10 +640,15 @@ export class DatabaseConnectionGET {
       if (limit) {
         const products = await this.prisma["produto"].findMany({
           take: limit,
+          select: selectProduto,
         });
         return products;
       }
-      const products = await this.prisma["produto"].findMany();
+
+      const products = await this.prisma["produto"].findMany({
+        select: selectProduto,
+      });
+
       return products;
     } catch (error) {
       console.error("ERROR TO GET PRODUCT");
@@ -607,12 +671,12 @@ export class DatabaseConnectionGET {
           localizacao: {
             select: {
               cidade: true,
-              provincia: true
-            }
+              provincia: true,
+            },
           },
           compras: {
             where: {
-              fazenda_id_fazenda: id_fazenda
+              fazenda_id_fazenda: id_fazenda,
             },
             select: {
               produto: {
@@ -621,58 +685,62 @@ export class DatabaseConnectionGET {
                   preco_produto: true,
                   descricao: true,
                   caminho_foto_produto: true,
-                }
-              }
-            }
-          }
-        }
-      }
+                },
+              },
+            },
+          },
+        },
+      },
     };
 
     try {
-      const existsFarm = await this.prisma['fazenda'].findUnique({
+      const existsFarm = await this.prisma["fazenda"].findUnique({
         where: {
-          id_fazenda
-        }
+          id_fazenda,
+        },
       });
 
       if (existsFarm === null) {
         const object_error = {
           message: "ESTA FAZENDA NAO EXISTE",
-          path: ['getSoldProducts', 'DatabaseConnectionGET']
+          path: ["getSoldProducts", "DatabaseConnectionGET"],
         };
         return object_error;
       }
 
       if (limit) {
-        const rows = await this.prisma['monitoramento'].findMany({
+        const rows = await this.prisma["monitoramento"].findMany({
           where: {
             fazenda_id_fazenda: id_fazenda,
           },
           select: these,
-          take: limit
+          take: limit,
         });
 
         return rows;
       }
 
-      const rows = await this.prisma['monitoramento'].findMany({
+      const rows = await this.prisma["monitoramento"].findMany({
         where: {
           fazenda_id_fazenda: id_fazenda,
         },
-        select: these
+        select: these,
       });
 
       return rows;
     } catch (error) {
-      console.error('AN ERROR OCCROURS TRYING GET ALL SOLD PRODUCTS!');
+      console.error("AN ERROR OCCROURS TRYING GET ALL SOLD PRODUCTS!");
       console.error(error);
     } finally {
       await this.prisma.$disconnect();
     }
   }
 
-  async getSoldProduct(id_fazenda: string, id_monitoramento: string, limit?: number) {
+  async getSoldProduct(
+    id_fazenda: string,
+    id_monitoramento: string,
+    limit?: number
+  ) {
     const these = {
       id_monitoramento: true,
       consumidor: {
@@ -685,12 +753,12 @@ export class DatabaseConnectionGET {
           localizacao: {
             select: {
               cidade: true,
-              provincia: true
-            }
+              provincia: true,
+            },
           },
           compras: {
             where: {
-              fazenda_id_fazenda: id_fazenda
+              fazenda_id_fazenda: id_fazenda,
             },
             select: {
               produto: {
@@ -699,52 +767,52 @@ export class DatabaseConnectionGET {
                   preco_produto: true,
                   descricao: true,
                   caminho_foto_produto: true,
-                }
-              }
-            }
-          }
-        }
-      }
+                },
+              },
+            },
+          },
+        },
+      },
     };
 
     try {
-      const existsFarm = await this.prisma['fazenda'].findUnique({
+      const exists = await this.prisma["fazenda"].findUnique({
         where: {
-          id_fazenda
-        }
+          id_fazenda,
+        },
       });
 
-      if (existsFarm === null) {
-        const object_error = {
-          message: "ESTA FAZENDA NAO EXISTE",
-          path: ['getSoldProducts', 'DatabaseConnectionGET']
+      if (exists === null) {
+        const object_error: ErrorObjectType = {
+          error: "Esta fazenda não existe",
+          path: ["getSoldProducts", "DatabaseConnectionGET"],
         };
         return object_error;
       }
 
       if (limit) {
-        const rows = await this.prisma['monitoramento'].findMany({
+        const rows = await this.prisma["monitoramento"].findMany({
           where: {
-            id_monitoramento
+            id_monitoramento,
           },
           select: these,
-          take: limit
+          take: limit,
         });
 
         return rows;
       }
 
-      const rows = await this.prisma['monitoramento'].findUnique({
+      const rows = await this.prisma["monitoramento"].findUnique({
         where: {
-          id_monitoramento
+          id_monitoramento,
         },
-        select: { ...these }
+        select: { ...these },
       });
 
       if (rows === null) {
         const object_error = {
           message: "O PRODUTO VENDIDO, NAO ESTA NA LISTA",
-          path: ['getSoldProduct', 'DatabaseConnectionGET']
+          path: ["getSoldProduct", "DatabaseConnectionGET"],
         };
         return object_error;
       }
@@ -759,33 +827,36 @@ export class DatabaseConnectionGET {
   }
 
   // Implementando [GET] para [Fazendeiro]
-  async getProduct(id_fazenda: string, id_produto: string) {
+  async fromFarmGetProduct(id_fazenda: string, id_produto: string) {
     try {
-      const product = await this.prisma['fazenda'].findUnique({
+      const fazenda = await this.prisma["fazenda"].findUnique({
         where: {
-          id_fazenda
+          id_fazenda,
         },
-        include: {
-          produto: true
-        }
+        select: {
+          produto: {
+            select: selectProduto,
+          },
+        },
       });
 
-      if (product === null) {
-        const object_error = {
-          message: "A FAZENDA NAO EXISTE",
-          path: ['getProduct', 'DatabaseConnectionGET'],
+      if (fazenda === null) {
+        const object_error: ErrorObjectType = {
+          error: "A fazenda não existe",
+          path: ["getProduct", "DatabaseConnectionGET"],
         };
         return object_error;
       }
 
-      const row = product.produto.find(row => (row.id_produto === id_produto));
+      const row = fazenda.produto.find((row) => row.id_produto === id_produto);
       if (!row) {
-        const object_error = {
-          message: "O PRODUTO NAO ESTA NA SUA LISTA DE ITEMS",
-          path: ['getProduct', 'DatabaseConnectionGET'],
+        const object_error: ErrorObjectType = {
+          error: "O produto não está na sua lista de items",
+          path: ["getProduct", "DatabaseConnectionGET"],
         };
         return object_error;
       }
+
       return row;
     } catch (error) {
       console.error("ERROR TO GET PRODUCT");
@@ -797,25 +868,34 @@ export class DatabaseConnectionGET {
 
   async fromFarmGetProducts(id_fazenda: string) {
     try {
-      const fromFarmProducts = await this.prisma["fazenda"].findMany({
-        where: {
-          id_fazenda,
-        },
-        include: {
-          produto: true,
-        },
-      });
+      const farm = await this.farmExists(id_fazenda);
 
-      if (!fromFarmProducts || fromFarmProducts === null) {
-        const object_error = {
-          message: "THERE ARE NOT PRODUCTS IN THIS FARM",
-          path: ['fromFarmGetProducts', 'DatabaseConnectionGET']
-        }
+      if (!farm || "error" in farm) {
+        const object_error = farm as ErrorObjectType;
         return object_error;
       }
 
-      const rows = fromFarmProducts.map(({ produto }) => (produto));
-      return rows[0];
+      const fromFarmProducts = await this.prisma["fazenda"].findUnique({
+        where: {
+          id_fazenda,
+        },
+        select: {
+          produto: {
+            select: selectProduto,
+          },
+        },
+      });
+
+      if (fromFarmProducts === null) {
+        const object_error = {
+          error: "Esta fazenda não existe",
+          path: ["fromFarmGetProduct", "DatabaseConnectionGET"],
+        };
+        return object_error;
+      }
+
+      const rows = fromFarmProducts["produto"];
+      return rows;
     } catch (error) {
       console.error("Can't Get Products from farm " + id_fazenda);
       console.error();
@@ -824,7 +904,7 @@ export class DatabaseConnectionGET {
     }
   }
 
-  async farmExists(id_fazenda: string) {
+  async farmExists(id_fazenda: string): Promise<Fazenda | ErrorObjectType> {
     try {
       const farmExists = await this.prisma["fazenda"].findUnique({
         where: {
@@ -832,26 +912,28 @@ export class DatabaseConnectionGET {
         },
       });
 
-      let object_error: { message: string; path: string[] } = {
-        message: '',
-        path: ['farmExists', 'DatabaseConnection']
+      let object_error: ErrorObjectType = {
+        error: "",
+        path: ["farmExists", "DatabaseConnection"],
       };
 
       if (farmExists === null) {
-        return ({ ...object_error, message: "THIS FARM DOESNOT EXISTS" });
+        return { ...object_error, error: "Esta fazenda não existe" };
       }
 
       if (!farmExists) {
-        return ({ ...object_error, message: "AN ERROR OCCOURS TRYING GET FARM" });
+        return { ...object_error, error: "AN ERROR OCCOURS TRYING GET FARM" };
       }
-
 
       return farmExists;
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Products from the Farm " + id_fazenda
       );
-      console.error(error);
+      return {
+        error: "Internal server error",
+        path: ["farmExists", "DatabaseConnection"],
+      }; // Handle the error case properly
     } finally {
       await this.prisma.$disconnect();
     }
@@ -861,19 +943,8 @@ export class DatabaseConnectionGET {
     try {
       const farm = await this.farmExists(id_fazenda);
 
-      if (!farm) {
-        const object_error = {
-          message: 'AN ERROR OCCOURS TRYING GET PRODUCT SOLD, FROM THE FARM',
-          path: ['fromFarmGetProductSolds', 'DatabaseConnectionGET']
-        };
-        return object_error;
-      }
-      if (Object.keys(farm).includes('message')) {
-        const error = Object(farm);
-        const object_error = {
-          message: error.message,
-          path: ['fromFarmGetProductSolds', ...error.path]
-        };
+      if (!farm || 'error' in farm) {
+        const object_error = farm as ErrorObjectType;
         return object_error;
       }
 
@@ -881,12 +952,15 @@ export class DatabaseConnectionGET {
         where: {
           fazenda_id_fazenda: id_fazenda,
         },
-        include: {
-          produto: true,
+        select: {
+          createdAt: true,
+          produto: {
+            select: selectProduto,
+          },
         },
       });
 
-      const rows = fromFarmProducts.map(fromFarm => (fromFarm.produto));
+      const rows = fromFarmProducts.map((fromFarm) => fromFarm.produto);
       return rows;
     } catch (error) {
       console.error(
@@ -898,25 +972,13 @@ export class DatabaseConnectionGET {
     }
   }
 
-  async getStock(id_fazenda: string, products: boolean = false) {
+  async fromFarmGetStock(id_fazenda: string, products: boolean = false) {
     try {
       const farm = await this.farmExists(id_fazenda);
 
-      if (!farm || Object.keys(farm).includes('message')) {
-        console.error(farm);
-        return;
-      }
-
-      if (products) {
-        // TODO: tornar possivel, retornar os produtos das fazendas
-        // alem de, somente, valores padrao da tabela [Stock]
-        const stock = await this.prisma["stock"].findMany({
-          where: {
-            fazenda_id_fazenda: id_fazenda,
-          },
-        });
-
-        return stock;
+      if (!farm || "error" in farm) {
+        const object_error = farm as ErrorObjectType;
+        return object_error;
       }
 
       const stock = await this.prisma["stock"].findMany({
@@ -947,16 +1009,14 @@ export class DatabaseConnectionGET {
       if (category === null) {
         const object_error = {
           message: "ESTA CATEGORIA NAO EXISTE",
-          path: ['getCategory', 'DatabaseConnectionGET']
-        }
+          path: ["getCategory", "DatabaseConnectionGET"],
+        };
         return object_error;
       }
 
       return category;
     } catch (error) {
-      console.error(
-        "AN ERROR OCCOUR TRYNG GET CATEGORY, BY ID" + id_categoria
-      );
+      console.error("AN ERROR OCCOUR TRYNG GET CATEGORY, BY ID" + id_categoria);
       console.error(error);
     } finally {
       await this.prisma.$disconnect();
@@ -985,51 +1045,39 @@ export class DatabaseConnectionGET {
 
   async fromFarmGetClients(id_fazenda: string) {
     try {
-      const _ = await this.farmExists(id_fazenda);
+      const farm = await this.farmExists(id_fazenda);
 
-      if (!_) {
-        console.error('AN ERROR OCCOURS TRYING GET CLIENTS FROM THIS FARM!');
-        return;
+      if (!farm || "error" in farm) {
+        const object_error = farm as ErrorObjectType;
+        return object_error;
       }
 
-      if (Object.keys(_).includes('message')) {
-        console.error(_);
-        return;
-      }
-
-      const clients = await this.prisma["fazenda"].findMany({
+      const clients = await this.prisma["fazenda"].findUnique({
         where: {
-          id_fazenda
+          id_fazenda,
         },
-        include: {
+        select: {
           cliente: {
             select: {
-              id_client: true,
               consumidor: {
-                select: {
-                  id_consumidor: true,
-                  nome_consumidor: true,
-                  email: true,
-                  numero_telefone: true,
-                  sexo: true,
-                  data_nascimento: true,
-                  createdAt: true,
-                  caminho_foto_consumidor: true,
-                  localizacao: {
-                    select: {
-                      cidade: true,
-                      provincia: true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                select: selectConsumidor,
+              },
+            },
+          },
+        },
       });
 
-      const transform = clients.map(({ cliente }) => (cliente));
-      return (transform[0]);
+      if (!clients || clients === null) {
+        const object_error: ErrorObjectType = {
+          error: "Esta fazenda não existe",
+          path: ["fromFarmGetClients", "DatabaseConnectionGET"],
+        };
+
+        return object_error;
+      }
+
+      const transform = clients["cliente"].map((client) => client.consumidor);
+      return transform;
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Clients from the Farm " + id_fazenda
@@ -1041,54 +1089,31 @@ export class DatabaseConnectionGET {
   }
 
   async fromFarmGetClient(id_fazenda: string, id_client: string) {
-    const row = await this.prisma['fazenda'].findUnique({
+    const rows = await this.prisma["clienteDaFazenda"].findUnique({
       where: {
-        id_fazenda
+        fazenda_id_fazenda_consumidor_id_consumidor: {
+          fazenda_id_fazenda: id_fazenda,
+          consumidor_id_consumidor: id_client,
+        },
       },
-      include: {
-        cliente: {
-          where: {
-            id_client
-          },
-          select: {
-            consumidor: {
-              select: {
-                id_consumidor: true,
-                nome_consumidor: true,
-                email: true,
-                numero_telefone: true,
-                sexo: true,
-                caminho_foto_consumidor: true,
-                localizacao: {
-                  select: {
-                    cidade: true,
-                    provincia: true
-                  },
-                },
-                data_nascimento: true,
-                createdAt: true,
-              }
-            }
-          }
-        }
-      }
+      select: {
+        id_client: true,
+        consumidor: {
+          select: selectConsumidor,
+        },
+      },
     });
 
-    let object_error: { message: string; path: string[] } = {
-      message: '',
-      path: ['fromFarmGetClient', 'DatabaseConnection']
-    };
-
-    if (!row) {
-      return { ...object_error, message: 'AN ERROR OCCOUR TRYING GET UNIQUE CLIENT' }
+    if (!rows || rows === null) {
+      const object_error: ErrorObjectType = {
+        error: "Este cliente não existe",
+        path: ["fromFarmGetClient", "DatabaseConnectionGET"],
+      };
+      return object_error;
     }
 
-    if (row === null) {
-      return { ...object_error, message: "ESTE CLIENTE NAO EXISTE" };
-    }
-
-    const transform = row.cliente.map(({ consumidor }) => (consumidor));
-    return transform;
+    const row = rows["consumidor"];
+    return row;
   }
 
   async fromFarmGetStatistic(id_fazenda: string) {
@@ -1096,19 +1121,23 @@ export class DatabaseConnectionGET {
       const farm = await this.farmExists(id_fazenda);
 
       if (!farm) {
-        console.error('AN ERROR OCCOURS TRYING GET CLIENTS FROM THIS FARM!');
+        console.error("AN ERROR OCCOURS TRYING GET CLIENTS FROM THIS FARM!");
         return;
       }
 
-      if (Object.keys(farm).includes('message')) {
+      if (Object.keys(farm).includes("message")) {
         const error = farm as unknown as {
           message: string;
           path: string[];
         };
         const object_error = {
           message: error.message,
-          path: ['fromFarmGetStatistic', 'DatabaseConnectionGET', ...error.path]
-        }
+          path: [
+            "fromFarmGetStatistic",
+            "DatabaseConnectionGET",
+            ...error.path,
+          ],
+        };
         return object_error;
       }
 
@@ -1184,7 +1213,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Statistics from the Farm " +
-        id_fazenda
+          id_fazenda
       );
       console.error(error);
     } finally {
@@ -1192,7 +1221,10 @@ export class DatabaseConnectionGET {
     }
   }
 
-  async fromFarmGetProductsByCategory(id_fazenda: string, id_categoria: number) {
+  async fromFarmGetProductsByCategory(
+    id_fazenda: string,
+    id_categoria: number
+  ) {
     const _ = await this.farmExists(id_fazenda);
 
     if (!_) {
@@ -1200,55 +1232,60 @@ export class DatabaseConnectionGET {
       return;
     }
 
-    if (_ && Object.keys(_).includes('message')) {
+    if (_ && Object.keys(_).includes("message")) {
       const error = Object(_);
       const object_error = {
         message: error.message,
-        path: ['fromFarmGetProductsByCategory', 'DatabaseConnectionGET', ...error]
+        path: [
+          "fromFarmGetProductsByCategory",
+          "DatabaseConnectionGET",
+          ...error,
+        ],
       };
       return object_error;
     }
-    const farm = await this.prisma['fazenda'].findMany({
+    const farm = await this.prisma["fazenda"].findMany({
       where: {
         produto: {
           every: {
             categoria_id_categoria: {
-              equals: id_categoria
-            }
-          }
-        }
+              equals: id_categoria,
+            },
+          },
+        },
       },
       include: {
-        produto: true
-      }
+        produto: true,
+      },
     });
-    const fromFarmProducts = farm.map(({ produto }) => (produto));
+    const fromFarmProducts = farm.map(({ produto }) => produto);
     return fromFarmProducts[0];
   }
 
   async getProductByCategory(id_categoria: number) {
-    const _ = await this.prisma['categoria'].findUnique({
+    const _ = await this.prisma["categoria"].findUnique({
       where: {
-        id_categoria
-      }
+        id_categoria,
+      },
     });
 
     if (_ === null) {
-      const object_error = {
-        message: "ESTA CATEGORIA NAO EXISTE",
-        path: ['getProductByCategory', 'DatabaseConnectionGET']
+      const object_error: ErrorObjectType = {
+        error: "Está categoria não existe",
+        path: ["getProductByCategory", "DatabaseConnectionGET"],
       };
       return object_error;
     }
 
-    const products = await this.prisma['produto'].findMany({
+    const products = await this.prisma["produto"].findMany({
       where: {
         categoria: {
           is: {
-            id_categoria
-          }
-        }
-      }
+            id_categoria,
+          },
+        },
+      },
+      select: selectProduto,
     });
 
     return products;
@@ -1291,7 +1328,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Favorite Product from the Client " +
-        id_consumidor
+          id_consumidor
       );
       console.error(error);
     } finally {
@@ -1335,7 +1372,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Cart from the Client " +
-        id_consumidor
+          id_consumidor
       );
       console.error(error);
     } finally {
@@ -1369,7 +1406,7 @@ export class DatabaseConnectionGET {
     } catch (error) {
       console.error(
         "An Error Ocurred when i tried get Favorite Farm from the Client " +
-        id_consumidor
+          id_consumidor
       );
       console.error(error);
     } finally {
@@ -1378,35 +1415,34 @@ export class DatabaseConnectionGET {
   }
 
   async fromDatabaseGetUser(email: string) {
-    const consumidor_row = await this.prisma['consumidor'].findUnique({
+    const consumidor_row = await this.prisma["consumidor"].findUnique({
       where: {
-        email
-      }
+        email,
+      },
     });
 
-    const fazendeiro_row = await this.prisma['fazendeiro'].findUnique({
+    const fazendeiro_row = await this.prisma["fazendeiro"].findUnique({
       where: {
-        email
-      }
+        email,
+      },
     });
 
     if (consumidor_row !== null) {
       return {
-        field: 'customer',
-        status: true
+        field: "customer",
+        status: true,
       };
     }
     if (fazendeiro_row !== null) {
       return {
-        field: 'farmer',
-        status: true
+        field: "farmer",
+        status: true,
       };
     }
 
     return {
-      field: 'default',
-      status: false
+      field: "default",
+      status: false,
     };
   }
-
 }
