@@ -43,10 +43,13 @@ dist/**/*
 # ignore yarn.lock
 yarn.lock
 
-# Ignore `bin` dir
+# Ignore `bin` dir or bundle
 bin/
 # or
 */bin/*
+
+bundle/
+*/bundle/*
 
 # Ignore everything in router dir
 ./router/*
