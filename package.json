@@ -9,8 +9,8 @@
     "test": "npx tsc && NODE_DEBUG=test node --env-file=.env.test --test --experimental-test-coverage",
     "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:* node --watch --env-file=.env --import tsx ./src/index.ts",
     "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --env-file=.env ./dist/bundle.js",
-    "up": "pm2 start npm -- start --watch --ignore-watch=node_modules",
-    "bundle": "webpack"
+    "up": "pm2 --name AgricolarServer start npm -- start --watch --ignore-watch=node_modules",
+    "build": "webpack"
   },
   "type": "module",
   "repository": {
@@ -33,6 +33,7 @@
     "url": "https://github.com/delciocapolo/APIAgricolar/issues"
   },
   "dependencies": {
+    "@apollo/gateway": "^2.7.8",
     "@apollo/server": "^4.10.2",
     "@apollo/subgraph": "^2.7.5",
     "@prisma/client": "^5.12.1",

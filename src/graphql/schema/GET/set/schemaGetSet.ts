@@ -14,52 +14,64 @@ const database = new DatabaseConnectionGET();
 
 export const typeDefs = gql(pathSchema);
 export const resolvers = {
-    Date: DATESCALAR,
-    Query: {
-        costumers: async () => {
-            const rows = await database.getCostumers();
-            if (!rows) {
-                log('ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET COSTUMERS');
-                return;
-            }
-            if (Object.keys(rows).includes('message')) {
-                console.error(rows);
-                return;
-            }
-            return rows as Consumidor[];
-        },
-        farmers: async () => {
-            const rows = await database.getFarmers();
-            if (!rows) {
-                log('ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET FARMERS');
-                return;
-            }
-            if (Object.keys(rows).includes('message')) {
-                console.error(rows);
-                return;
-            }
-            return rows as Fazendeiro[];
-        },
-        products: async () => {
-            const rows = await database.getProducts();
-            if (!rows) {
-                log('ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET PRODUCTS');
-                return;
-            }
-            if (Object.keys(rows).includes('message')) {
-                console.error(rows);
-                return;
-            }
-            return rows as Produto[];
-        },
-        user: async (
-            _: any,
-            { email }: {
-                email: string
-            }
-        ) => {
-            const row = await database.fromDatabaseGetUser(email);
-            return row;
-        }
-    }
-}
+  Date: DATESCALAR,
+  ProductSchema: {
+    __resolveReference(arg: any, n_args: any, context: any, info: any) {
+      console.log(arg, n_args, context, info);
+
+      return {
+        ...arg,
+        ...n_args,
+      };
+    },
+  },
+  Query: {
+    costumers: async () => {
+      const rows = await database.getCostumers();
+      if (!rows) {
+        log("ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET COSTUMERS");
+        return;
+      }
+      if (Object.keys(rows).includes("message")) {
+        console.error(rows);
+        return;
+      }
+      return rows as Consumidor[];
+    },
+    farmers: async () => {
+      const rows = await database.getFarmers();
+      if (!rows) {
+        log("ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET FARMERS");
+        return;
+      }
+      if (Object.keys(rows).includes("message")) {
+        console.error(rows);
+        return;
+      }
+      return rows as Fazendeiro[];
+    },
+    products: async () => {
+      const rows = await database.getProducts();
+      if (!rows) {
+        log("ROW IS [UNDEFINED], AN ERROR OCCOURS TRYING GET PRODUCTS");
+        return;
+      }
+      if (Object.keys(rows).includes("message")) {
+        console.error(rows);
+        return;
+      }
+      return rows as Produto[];
+    },
+    user: async (
+      _: any,
+      {
+        email,
+      }: {
+        email: string;
+      }
+    ) => {
+      const row = await database.fromDatabaseGetUser(email);
+      return row;
+    },
+  },
+};

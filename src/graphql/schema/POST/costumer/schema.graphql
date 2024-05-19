@@ -1,5 +1,5 @@
 extend schema
-  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key"])
+  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable", "@inaccessible"])
   
 scalar Date
 
@@ -14,35 +14,8 @@ enum Role {
   Employee
 }
 
-type FazendeiroSchema @key(fields: "id_fazendeiro") {
-  id_fazendeiro: ID
-  nome_fazendeiro: String
-  email: String
-  quantidade_fazendas: Int
-  sexo: Sexo
-  data_nascimento: Date
-  role: Role
-  createAt: Date
-  updatedAt: Date
-  localizacao_id_localizacao: String
-}
-
 type LocalizacaoSchema @key(fields: "id_localizacao") {
   id_localizacao: ID
-  provincia: String
-  cidade: String
-  createdAt: Date
-}
-
-type FarmSchema @key(fields: "id_fazenda") {
-  id_fazenda: ID
-  nome_fazenda: String
-  createAt: Date
-  updatedAt: Date
-  fazendeiro_id_fazendeiro: String
-}
-
-type SimpleLocalizacaoSchema {
   cidade: String
   provincia: String
 }
@@ -56,66 +29,29 @@ type ConsumidorSchema @key(fields: "id_consumidor") {
   data_nascimento: Date
   caminho_foto_consumidor: String
   createAt: Date
-  localizacao: SimpleLocalizacaoSchema
-  token: ID!
+  localizacao: LocalizacaoSchema
+  token: ID
 }
 
-type CategoriaSchema @key(fields: "id_categoria") {
-  id_categoria: Int
-  nome_categoria: String
-  createdAt: Date
-}
-
-type CreateProductTypeSchema @key(fields: "id_fazenda") {
-  id_fazenda: ID
-  categoria: CategoriaSchema
-}
-
-type ProductSchema @key(fields: "id_produto") {
-  id_produto: ID
-  nome_produto: String
-  preco_produto: Float
-  categoria_id_categoria: Int
-  caminho_foto_produto: String
-  descricao: String
-  servico_entrega_disponivel: Boolean
-  disponivel: Boolean
-  fazenda_id_fazenda: String
-  createAt: Date
-  updatedAt: Date
-}
-
-type EmployeeSchema @key(fields: "id_colaborador") {
-  id_colaborador: ID
-  entidade_id_fazenda: String
-  empregado_id_consumidor: String
-}
-
-type CreateEmployeeSchema {
-  entidade: FarmSchema
-  empregado: ConsumidorSchema
-  employee: EmployeeSchema
-}
-
-type WishListSchema @key(fields: "id_produto_favorito") {
+type WishListSchema {
   id_produto_favorito: ID
   produto_id_produto: String
-  consumidor_id_consumidor: String
+  consumidor_id_consumidor: ID
   createdAt: Date
   updatedAt: Date
 }
 
-type CarrinhoSchema @key(fields: "id_carrinho") {
+type CarrinhoSchema {
   id_carrinho: ID
   produto_id_produto: String
-  consumidor_id_consumidor: String
+  consumidor_id_consumidor: ID
   createdAt: Date
   updatedAt: Date
 }
 
-type FazendaFavoritaSchema @key(fields: "id_fazenda_favorita") {
+type FazendaFavoritaSchema {
   id_fazenda_favorita: ID
-  consumidor_id_consumidor: String
+  consumidor_id_consumidor: ID
   fazenda_id_fazenda: String
   createdAt: Date
   updatedAt: Date

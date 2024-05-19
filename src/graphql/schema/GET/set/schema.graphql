@@ -1,68 +1,20 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.0", 
-    import: ["@key"])
+    import: ["@key", "@shareable", "@inaccessible", "@external"])
 
 scalar Date
 
-enum Sexo {
-  M
-  F
+extend type ConsumidorSchema @key(fields: "id_consumidor") {
+  id_consumidor: ID @external
 }
 
-enum Role {
-  Fazendeiro
-  Consumidor
-  Employee
+extend type FazendeiroSchema @key(fields: "id_fazendeiro") {
+  id_fazendeiro: ID @external
 }
 
-type ConsumidorSchema @key(fields: "id_consumidor") {
-  id_consumidor: ID
-  nome_consumidor: String
-  email: String
-  numero_telefone: String
-  senha: String
-  sexo: Sexo
-  data_nascimento: Date
-  caminho_foto_consumidor: String
-  numero_compras: Int
-  role: Role
-  createAt: Date
-  updatedAt: Date
-  localizacao_id_localizacao: ID
-}
-
-type FazendeiroSchema @key(fields: "id_fazendeiro") {
-  id_fazendeiro: ID
-  nome_fazendeiro: String
-  email: String
-  quantidade_fazendas: Int
-  sexo: Sexo
-  data_nascimento: Date
-  role: Role
-  createAt: Date
-  updatedAt: Date
-  localizacao_id_localizacao: ID
-}
-
-type LocalizacaoSchema @key(fields: "id_localizacao") {
-  id_localizacao: ID
-  provincia: String
-  cidade: String
-  createdAt: Date
-}
-
-type ProductSchema @key(fields: "id_produto") {
-  id_produto: ID
+extend type ProductSchema @key(fields: "id_produto") {
+  id_produto: ID @external
   nome_produto: String
-  preco_produto: Float
-  categoria_id_categoria: ID
-  caminho_foto_produto: String
-  descricao: String
-  servico_entrega_disponivel: Boolean
-  disponivel: Boolean
-  fazenda_id_fazenda: ID
-  createAt: Date
-  updatedAt: Date
 }
 
 type UserSchema {
