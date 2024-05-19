@@ -1,0 +1,154 @@
+extend schema
+  @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable", "@inaccessible", "@external"])
+
+scalar Date
+
+# utilitarios
+enum Sexo {
+  M
+  F
+}
+
+enum Role {
+  Fazendeiro
+  Consumidor
+  Employee
+}
+
+type LocalizacaoSchema {
+  id_localizacao: ID
+  provincia: String
+  cidade: String
+}
+
+# Entidades | como [fazendeiro, consumidor, produto, fazenda]
+type FazendeiroSchema @key(fields: "id_fazendeiro") {
+  id_fazendeiro: ID
+  nome_fazendeiro: String
+  email: String
+  quantidade_fazendas: Int
+  sexo: Sexo
+  data_nascimento: Date
+  caminho_foto_fazendeiro: String
+  createAt: Date
+  localizacao: LocalizacaoSchema
+}
+
+type FazendaSchema @key(fields: "id_fazenda") {
+  id_fazenda: ID!
+  nome_fazenda: String!
+  quantidade_clientes: Int
+  createAt: Date
+  fazendeiro_id_fazendeiro: String
+  nif: String
+}
+
+type ProdutoSchema @key(fields: "id_produto") {
+  id_produto: ID
+  nome_produto: String
+  preco_produto: Float
+  categoria_id_categoria: ID
+  caminho_foto_produto: String
+  descricao: String
+  servico_entrega_disponivel: Boolean
+  disponivel: Boolean
+  fazenda_id_fazenda: ID
+  createAt: Date
+}
+
+extend type ConsumidorSchema @key(fields: "id_consumidor") {
+  id_consumidor: ID @external
+}
+
+# Complementares | campos extras
+type CategoriaSchema {
+  id_categoria: Int
+  nome_categoria: String
+  createdAt: Date
+}
+
+type EmployeeSchema @key(fields: "id_colaborador") {
+  id_colaborador: String
+  entidade: FarmSchema
+  referencia_consumidor: CostumerSchema
+}
+
+type StockSchema {
+  id_stock: ID
+  nome_produto: String
+  quantidade_disponivel: Int
+  stock_inicial: Int
+  createdAt: Date
+  fazenda_id_fazenda: String
+}
+
+# Inputs | Campos de criação
+input FazendeiroInput {
+  nome_fazendeiro: String
+  email: String
+  senha: String!
+  caminho_foto_fazendeiro: String
+  sexo: Sexo
+  data_nascimento: Date
+  bi: String!
+}
+
+input LocalizacaoInput {
+  provincia: String
+  cidade: String
+}
+
+input FazendaInput {
+  nome_fazenda: String!
+  nif: String!
+}
+
+input ProdutoInput {
+  nome_produto: String
+  preco_produto: Float
+  caminho_foto_produto: String
+  descricao: String
+  servico_entrega_disponivel: Boolean
+}
+
+type TokenSchema {
+  token: ID!
+}
+
+union FazendeiroToken = FazendeiroSchema | TokenSchema
+
+# As querys padrao
+type Query {
+  health: String!
+}
+
+type Mutation {
+  createFarmer(
+    fazendeiro: FazendeiroInput
+    localizacao: LocalizacaoInput
+  ): FazendeiroToken
+  createFarm(id_fazendeiro: String!, farm: FazendaInput): FazendaSchema
+  createProduct(
+    id_fazenda: String!
+    nome_categoria: String!
+    produto: ProductInput
+  ): ProdutoSchema
+  sellProduct(id_consumidor: ID!, id_produto: ID!): ProdutoSchema
+  createEmployee(id_fazenda: ID!, id_consumidor: ID!): EmployeeSchema
+
+  # relacionado com fazenda, vendas e metricas
+  # FIXME: Coordenar com o schema.ts e Database.getSoldProduct(DatabaseConnection.ts)
+  sold(id_fazenda: ID!, id_monitoramento: ID!): ProductSchema
+
+  # Resolvidos
+  solds(id_fazenda: ID!): [ProdutoSchema]
+  product(id_fazenda: ID!, id_product: ID!): ProdutoSchema
+  products(id_fazenda: ID!): [ProdutoSchema]
+  stock(id_fazenda: ID!): [StockSchema]
+  productByCategory(id_categoria: Int!): [ProdutoSchema]
+  # TODO: fromFarmGetProductsByCategory |  Aqui
+  client(id_fazenda: ID!, id_client: ID!): ConsumidorSchema
+  clients(id_fazenda: ID!): [ConsumidorSchema]
+  # TODO: Tratar de terminar o Schema sobre o retorno das estatisticas
+  statistics(id_fazenda: ID!): [ConsumidorSchema]
+}

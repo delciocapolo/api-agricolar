@@ -1,4 +1,5 @@
-import { Sexo } from "@prisma/client";
+export type Role = "Farmer" | "Employee" | "Costumer";
+export type Sexo = "M" | "F";
 
 type localizacao = {
     cidade: string;

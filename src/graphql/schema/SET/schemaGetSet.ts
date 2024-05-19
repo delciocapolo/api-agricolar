@@ -2,8 +2,8 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import gql from "graphql-tag";
 import { readFileSync } from "node:fs";
-import DATESCALAR from "../../helpers/DateScalar";
-import { DatabaseConnectionGET } from "../../../../model/databaseConnection";
+import DATESCALAR from "../helpers/DateScalar";
+import { DatabaseConnectionGET } from "../../../model/databaseConnection";
 import { debug } from "node:util";
 import { Consumidor, Fazendeiro, Produto } from "@prisma/client";
 

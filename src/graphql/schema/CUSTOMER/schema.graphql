@@ -3,6 +3,7 @@ extend schema
   
 scalar Date
 
+# utilitarios
 enum Sexo {
   M
   F
@@ -14,7 +15,8 @@ enum Role {
   Employee
 }
 
-type LocalizacaoSchema @key(fields: "id_localizacao") {
+# Entidades | como [fazendeiro, consumidor, produto, fazenda]
+type LocalizacaoSchema {
   id_localizacao: ID
   cidade: String
   provincia: String
@@ -30,7 +32,6 @@ type ConsumidorSchema @key(fields: "id_consumidor") {
   caminho_foto_consumidor: String
   createAt: Date
   localizacao: LocalizacaoSchema
-  token: ID
 }
 
 type WishListSchema {
@@ -38,7 +39,6 @@ type WishListSchema {
   produto_id_produto: String
   consumidor_id_consumidor: ID
   createdAt: Date
-  updatedAt: Date
 }
 
 type CarrinhoSchema {
@@ -46,7 +46,6 @@ type CarrinhoSchema {
   produto_id_produto: String
   consumidor_id_consumidor: ID
   createdAt: Date
-  updatedAt: Date
 }
 
 type FazendaFavoritaSchema {
@@ -54,10 +53,9 @@ type FazendaFavoritaSchema {
   consumidor_id_consumidor: ID
   fazenda_id_fazenda: String
   createdAt: Date
-  updatedAt: Date
 }
 
-" provendo os valores "
+# Inputs | Campos de criação
 input ConsumidorInput {
   nome_consumidor: String
   email: String
@@ -66,14 +64,18 @@ input ConsumidorInput {
   sexo: Sexo
   data_nascimento: Date
   caminho_foto_consumidor: String
-  numero_compras: Int
-  role: Role
 }
 
 input LocalizacaoInput {
   provincia: String
   cidade: String
 }
+
+type TokenSchema {
+  token: ID!
+}
+
+union FazendeiroToken = FazendeiroSchema | TokenSchema
 
 type Query {
   health: String!

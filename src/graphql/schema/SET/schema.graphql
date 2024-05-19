@@ -1,6 +1,6 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.0", 
-    import: ["@key", "@shareable", "@inaccessible", "@external"])
+    import: ["@key", "@shareable", "@external"])
 
 scalar Date
 
@@ -12,9 +12,8 @@ extend type FazendeiroSchema @key(fields: "id_fazendeiro") {
   id_fazendeiro: ID @external
 }
 
-extend type ProductSchema @key(fields: "id_produto") {
+extend type ProdutoSchema @key(fields: "id_produto") {
   id_produto: ID @external
-  nome_produto: String
 }
 
 type UserSchema {
@@ -25,6 +24,6 @@ type UserSchema {
 type Query {
   costumers: [ConsumidorSchema]
   farmers: [FazendeiroSchema]
-  products: [ProductSchema]
+  products: [ProdutoSchema]
   user(email: String): UserSchema
 }

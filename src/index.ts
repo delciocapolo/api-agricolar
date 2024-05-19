@@ -1,17 +1,9 @@
-import { PORT } from "./utils/EnvConfigs";
-import { statistic } from "./DTO/statistic";
-import { httpServer } from "./server.mjs";
+import { HTTP_SERVER_PORT } from "./utils/EnvConfigs";
+import { httpServer } from "./server";
 
-(
-    async () => {
-        await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
-        statistic.push({
-            server: "HTTP",
-            status: "running",
-            name: "HTTP 📬",
-            adress: `http://localhost:${PORT}/v1/`,
-        });
+httpServer.listen(HTTP_SERVER_PORT, () => {
+  console.log(
+    `HTTP 📬 Server is runnig at http://localhost:${HTTP_SERVER_PORT}/v1/`
+  );
+});
 
-        console.table(statistic);
-    }
-)()
