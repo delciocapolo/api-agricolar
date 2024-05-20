@@ -2,16 +2,20 @@
 CREATE TABLE `farmer` (
     `id_farmer` VARCHAR(100) NOT NULL,
     `farmer_name` VARCHAR(150) NOT NULL,
+    `password` VARCHAR(300) NOT NULL,
     `email` VARCHAR(100) NOT NULL,
     `count_farmer` SMALLINT NOT NULL DEFAULT 1,
     `sex` ENUM('F', 'M') NOT NULL,
     `born_on` DATE NOT NULL,
     `caminho_foto_fazendeiro` VARCHAR(350) NULL,
+    `role` ENUM('Fazendeiro', 'Consumidor', 'Employee') NOT NULL DEFAULT 'Fazendeiro',
+    `bi_farmer` VARCHAR(100) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `location_id_location` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `farmer_email_key`(`email`),
+    UNIQUE INDEX `farmer_bi_farmer_key`(`bi_farmer`),
     UNIQUE INDEX `farmer_location_id_location_key`(`location_id_location`),
     PRIMARY KEY (`id_farmer`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -42,13 +46,24 @@ CREATE TABLE `socialmedia` (
 -- CreateTable
 CREATE TABLE `farm` (
     `id_farm` VARCHAR(191) NOT NULL,
+    `nif_farm` VARCHAR(100) NOT NULL,
     `farm_name` VARCHAR(250) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `fazendeiro_id_fazendeiro` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `farm_nif_farm_key`(`nif_farm`),
     UNIQUE INDEX `farm_farm_name_key`(`farm_name`),
     PRIMARY KEY (`id_farm`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `employee` (
+    `id_employee` VARCHAR(191) NOT NULL,
+    `entidade_id_fazenda` VARCHAR(191) NOT NULL,
+    `empregado_id_consumidor` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`id_employee`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -101,7 +116,8 @@ CREATE TABLE `costumer` (
     `sex` ENUM('F', 'M') NOT NULL,
     `born_on` DATE NOT NULL,
     `path_photo` VARCHAR(250) NULL,
-    `count_purchases` MEDIUMINT UNSIGNED NULL DEFAULT 1,
+    `count_purchases` MEDIUMINT UNSIGNED NULL DEFAULT 0,
+    `role` ENUM('Fazendeiro', 'Consumidor', 'Employee') NOT NULL DEFAULT 'Consumidor',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `location_id_location` VARCHAR(191) NOT NULL,
@@ -156,6 +172,15 @@ CREATE TABLE `FavoriteFarm` (
     PRIMARY KEY (`costumer_id_costumer`, `farm_id_farm`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `clientInFarm` (
+    `id_client` VARCHAR(191) NOT NULL,
+    `farm_id_farm` VARCHAR(191) NOT NULL,
+    `costumer_id_costumer` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`farm_id_farm`, `costumer_id_costumer`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `farmer` ADD CONSTRAINT `farmer_location_id_location_fkey` FOREIGN KEY (`location_id_location`) REFERENCES `location`(`id_localizacao`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -164,6 +189,12 @@ ALTER TABLE `socialmedia` ADD CONSTRAINT `socialmedia_fazendeiro_id_fazendeiro_f
 
 -- AddForeignKey
 ALTER TABLE `farm` ADD CONSTRAINT `farm_fazendeiro_id_fazendeiro_fkey` FOREIGN KEY (`fazendeiro_id_fazendeiro`) REFERENCES `farmer`(`id_farmer`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `employee` ADD CONSTRAINT `employee_entidade_id_fazenda_fkey` FOREIGN KEY (`entidade_id_fazenda`) REFERENCES `farm`(`id_farm`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `employee` ADD CONSTRAINT `employee_empregado_id_consumidor_fkey` FOREIGN KEY (`empregado_id_consumidor`) REFERENCES `costumer`(`id_costumer`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `stock` ADD CONSTRAINT `stock_fazenda_id_fazenda_fkey` FOREIGN KEY (`fazenda_id_fazenda`) REFERENCES `farm`(`id_farm`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -203,3 +234,9 @@ ALTER TABLE `FavoriteFarm` ADD CONSTRAINT `FavoriteFarm_costumer_id_costumer_fke
 
 -- AddForeignKey
 ALTER TABLE `FavoriteFarm` ADD CONSTRAINT `FavoriteFarm_farm_id_farm_fkey` FOREIGN KEY (`farm_id_farm`) REFERENCES `farm`(`id_farm`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `clientInFarm` ADD CONSTRAINT `clientInFarm_farm_id_farm_fkey` FOREIGN KEY (`farm_id_farm`) REFERENCES `farm`(`id_farm`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `clientInFarm` ADD CONSTRAINT `clientInFarm_costumer_id_costumer_fkey` FOREIGN KEY (`costumer_id_costumer`) REFERENCES `costumer`(`id_costumer`) ON DELETE RESTRICT ON UPDATE CASCADE;

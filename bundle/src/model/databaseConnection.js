@@ -228,6 +228,7 @@ export class DatabaseConnectionPOST {
             }
             const data = await this.prisma["fazendeiro"].create({
                 data: {
+                    bi_fazendeiro: fazendeiro.bi_fazendeiro,
                     nome_fazendeiro: fazendeiro.nome_fazendeiro,
                     email: fazendeiro.email,
                     senha: fazendeiro.senha,
@@ -282,6 +283,7 @@ export class DatabaseConnectionPOST {
             }
             const data = await this.prisma["fazenda"].create({
                 data: {
+                    nif_fazenda: farm.nif_fazenda,
                     nome_fazenda: farm.nome_fazenda,
                     fazendeiro: {
                         connect: {

@@ -98,7 +98,7 @@ input FazendaInput
   @join__type(graph: FARMER)
 {
   nome_fazenda: String!
-  nif: String!
+  nif_fazenda: String!
 }
 
 type FazendaSchema
@@ -115,13 +115,13 @@ type FazendaSchema
 input FazendeiroInput
   @join__type(graph: FARMER)
 {
+  bi_fazendeiro: String!
   nome_fazendeiro: String
   email: String
   senha: String!
   caminho_foto_fazendeiro: String
   sexo: Sexo
   data_nascimento: Date
-  bi: String!
 }
 
 type FazendeiroSchema

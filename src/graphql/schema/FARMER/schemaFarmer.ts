@@ -165,7 +165,6 @@ export const resolvers = {
       const datas = row as unknown as FazendeiroSchemaType;
       return { fazendeiro: datas, token };
     },
-
     createFarm: async (
       _: any,
       { id_fazendeiro, farm }: FarmInputType,

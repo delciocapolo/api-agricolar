@@ -3,6 +3,7 @@ import { Sexo } from "./default";
 
 export type FarmerInputType = {
   fazendeiro: {
+    bi_fazendeiro: string;
     nome_fazendeiro: string;
     email: string;
     data_nascimento: string;
@@ -19,6 +20,7 @@ export type FarmerInputType = {
 export type FarmInputType = {
   id_fazendeiro: string;
   farm: {
+    nif_fazenda: string;
     nome_fazenda: string;
   };
 };

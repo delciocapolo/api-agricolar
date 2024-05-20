@@ -10,11 +10,14 @@
     "server:set": "node --watch --env-file=.env --import tsx ./src/graphql/schema/CUSTOMER/serverCustomer.mts",
     "server:farmer": "node --watch --env-file=.env --import tsx ./src/graphql/schema/FARMER/serverFarmer.mts",
     "server:customer": "node --watch --env-file=.env --import tsx ./src/graphql/schema/SET/serverSet.mts",
+    "server:http": "node --watch --env-file=.env --import tsx ./src/index.ts",
+    "mainserver": "NODE_ENV=development NODE_DEBUG=server,main,database,set:*,CustomerServer,SetServer,FarmerServer node --watch --env-file=.env --import tsx ./src/graphql/server.mts",
     "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:*,CustomerServer,SetServer,FarmerServer concurrently npm:server:*",
     "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --env-file=.env ./dist/bundle.js",
     "up": "pm2 start ecosystem.config.js",
     "build": "rm -rf ./bundle && tsc",
-    "graphql:compose": "cd ./router && ./router --supergraph=prod-schema.graphql && cd .."
+    "graphql:compose": "rover supergraph compose --config ./router/supergraph.yaml --output ./router/prod-schema.graphql",
+    "graphql:start": "npm run graphql:compose && exec ./router/router --supergraph=./router/prod-schema.graphql"
   },
   "type": "module",
   "repository": {
@@ -42,6 +45,7 @@
     "@apollo/subgraph": "^2.7.5",
     "@prisma/client": "^5.12.1",
     "@prisma/internals": "^5.12.1",
+    "@types/make-fetch-happen": "^10.0.4",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "concurrently": "^8.2.2",
@@ -52,6 +56,7 @@
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
     "jsonwebtoken": "^9.0.2",
+    "make-fetch-happen": "^13.0.1",
     "ngrok": "^5.0.0-beta.2",
     "node-fetch": "^3.3.2",
     "pm2": "^5.3.1",

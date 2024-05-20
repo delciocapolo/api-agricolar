@@ -28,9 +28,9 @@ model Fazendeiro {
   data_nascimento         DateTime @map("born_on") @db.Date
   caminho_foto_fazendeiro String?  @db.VarChar(350)
   role                    Role     @default(Fazendeiro)
+  bi_fazendeiro           String   @unique @map("bi_farmer") @db.VarChar(100)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
-  bi_fazendeiro           String   @unique @db.VarChar(100)
 
   localizacao                Localizacao @relation(fields: [localizacao_id_localizacao], references: [id_localizacao])
   localizacao_id_localizacao String      @unique @map("location_id_location")
@@ -68,7 +68,7 @@ model RedeSocial {
 
 model Fazenda {
   id_fazenda   String   @id @default(cuid()) @map("id_farm")
-  nif_fazenda  String   @unique @db.VarChar(100)
+  nif_fazenda  String   @unique @map("nif_farm") @db.VarChar(100)
   nome_fazenda String   @unique @map("farm_name") @db.VarChar(250)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

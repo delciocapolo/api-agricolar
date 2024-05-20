@@ -46,9 +46,7 @@ export const resolvers = {
 
   // Querys padrao
   Query: {
-    health: () => {
-      return MessageHeath("POST Customer");
-    },
+    health: () => MessageHeath("POST Customer"),
   },
   Mutation: {
     createCostumer: async (

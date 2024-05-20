@@ -8,7 +8,7 @@ import type {
   CreateClient,
   CreateEmployeetype,
 } from "./@types/type";
-import { debuglog } from "util";
+import { debuglog, isNull } from "util";
 import { ErrorObjectType, LocalizacaoType } from "../graphql/@types/graphqlType";
 import { CustomerInputType } from "../graphql/schema/CUSTOMER/@types/CustomerTypes";
 
@@ -271,6 +271,7 @@ export class DatabaseConnectionPOST {
 
       const data = await this.prisma["fazendeiro"].create({
         data: {
+          bi_fazendeiro: fazendeiro.bi_fazendeiro,
           nome_fazendeiro: fazendeiro.nome_fazendeiro,
           email: fazendeiro.email,
           senha: fazendeiro.senha,
@@ -329,6 +330,7 @@ export class DatabaseConnectionPOST {
 
       const data = await this.prisma["fazenda"].create({
         data: {
+          nif_fazenda: farm.nif_fazenda,
           nome_fazenda: farm.nome_fazenda,
           fazendeiro: {
             connect: {
@@ -1008,7 +1010,7 @@ export class DatabaseConnectionGET {
 
       if (category === null) {
         const object_error = {
-          message: "ESTA CATEGORIA NAO EXISTE",
+          message: "Esta categoria não existe",
           path: ["getCategory", "DatabaseConnectionGET"],
         };
         return object_error;
@@ -1033,7 +1035,10 @@ export class DatabaseConnectionGET {
         return categories;
       }
 
-      const categories = await this.prisma["categoria"].findMany();
+      const categories = await this.prisma["categoria"].findMany({
+        select: selectCategoria['select']
+      });
+
       return categories;
     } catch (error) {
       console.error("An Error Ocurred when i tried get Categories");
@@ -1431,18 +1436,21 @@ export class DatabaseConnectionGET {
       return {
         field: "customer",
         status: true,
+        userid: consumidor_row['id_consumidor'] || null,
       };
     }
     if (fazendeiro_row !== null) {
       return {
         field: "farmer",
         status: true,
+        userid: fazendeiro_row['id_fazendeiro'] || null,
       };
     }
 
     return {
       field: "default",
       status: false,
+      userid: null
     };
   }
 }
