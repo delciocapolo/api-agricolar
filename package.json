@@ -13,7 +13,7 @@
     "dev": "NODE_ENV=development NODE_DEBUG=server,main,database,set:*,CustomerServer,SetServer,FarmerServer concurrently npm:server:*",
     "start": "NODE_ENV=production NODE_DEBUG=server,main,database,set:* node --env-file=.env ./dist/bundle.js",
     "up": "pm2 start ecosystem.config.js",
-    "build": "tsc",
+    "build": "rm -rf ./bundle && tsc",
     "graphql:compose": "cd ./router && ./router --supergraph=prod-schema.graphql && cd .."
   },
   "type": "module",
