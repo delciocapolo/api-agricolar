@@ -19,6 +19,7 @@ extend type ProdutoSchema @key(fields: "id_produto") {
 type UserSchema {
   field: String
   status: Boolean
+  userid: ID
 }
 
 type Query {

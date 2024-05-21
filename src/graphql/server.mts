@@ -1,30 +1,51 @@
+import { expressMiddleware } from "@apollo/server/express4";
+import http from "node:http";
+import express from "express";
+import cors, { CorsRequest } from "cors";
+import { debuglog } from "node:util";
+
 import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { ApolloGateway } from "@apollo/gateway";
-import { readFileSync } from "fs";
-import path from "node:path";
-import { fileURLToPath } from "url";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { ApolloGateway, IntrospectAndCompose } from "@apollo/gateway";
 
-const routes = [
-  { name: "farmer", url: "http://localhost:5051/v1/farmer" },
-  { name: "customer", url: "http://localhost:5050/v1/customer" },
-  { name: "set", url: "http://localhost:5052/v1/set" },
-];
+const app = express();
+const httpServer = http.createServer(app);
+const log = debuglog("CustomerServer");
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-console.log(__dirname);
-
-const supergraphSdl = readFileSync(path.resolve(__dirname,"../../router/prod-schema.graphql")).toString();
-
-const gateway = new ApolloGateway({
-  supergraphSdl,
+const Gateway = new ApolloServer({
+  gateway: new ApolloGateway({
+    supergraphSdl: new IntrospectAndCompose({
+      subgraphs: [
+        { name: "Farmer", url: "http://127.0.0.1:5051/v1/farmer" },
+        { name: "Set", url: "http://127.0.0.1:5052/v1/set" },
+        { name: "Customer", url: "http://127.0.0.1:5050/v1/customer" },
+      ],
+    }),
+  }),
+  introspection: true,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
-const server = new ApolloServer({
-  gateway,
-  introspection: true
-});
+app.use(
+  cors<CorsRequest>({
+    origin: "*",
+  })
+);
 
-// Note the top-level `await`!
-const { url } = await startStandaloneServer(server);
-console.log(`🚀  Server ready at ${url}`);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+try {
+  await Gateway.start();
+
+  app.use("/v1/api", expressMiddleware(Gateway));
+
+  await new Promise<void>((resolve) =>
+    httpServer.listen({ port: 5055 }, resolve)
+  );
+  log(
+    `SERVER IS RUNNIG AT: http://localhost:${5055}/v1/api`
+  );
+} catch (error) {
+  console.error(error);
+}

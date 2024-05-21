@@ -42,7 +42,6 @@ export type Cart = {
 export type CustomerInputType = {
   nome_consumidor: string;
   email: string;
-  numero_telefone: string;
   senha: string;
   sexo: Sexo;
   caminho_foto_consumidor: string;

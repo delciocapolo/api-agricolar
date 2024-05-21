@@ -8,7 +8,7 @@ import type {
   CreateClient,
   CreateEmployeetype,
 } from "./@types/type";
-import { debuglog, isNull } from "util";
+import { debuglog } from "util";
 import { ErrorObjectType, LocalizacaoType } from "../graphql/@types/graphqlType";
 import { CustomerInputType } from "../graphql/schema/CUSTOMER/@types/CustomerTypes";
 
@@ -30,7 +30,6 @@ const selectConsumidor = {
   id_consumidor: true,
   nome_consumidor: true,
   email: true,
-  numero_telefone: true,
   sexo: true,
   data_nascimento: true,
   caminho_foto_consumidor: true,
@@ -105,7 +104,6 @@ export class DatabaseConnectionPOST {
         data: {
           nome_consumidor: consumidor.nome_consumidor,
           email: consumidor.email,
-          numero_telefone: consumidor.numero_telefone,
           senha: consumidor.senha,
           sexo: consumidor.sexo,
           caminho_foto_consumidor: consumidor.caminho_foto_consumidor,
@@ -229,7 +227,7 @@ export class DatabaseConnectionPOST {
 
       if (alreadyExistsInFavoriteFarm !== null) {
         const object_error = {
-          error: "ESTA FAZENDA, JA EXISTE NA LISTA DE FAVORITAS",
+          error: "Esta fazenda já está na lista de favoritos",
           path: "createFarvoriteFarm method's class",
         };
         return object_error;
@@ -255,13 +253,19 @@ export class DatabaseConnectionPOST {
 
   async createFarmer({ fazendeiro, localizacao }: any) {
     try {
-      const exists = await this.prisma["fazendeiro"].findUnique({
+      const exists_ = await this.prisma["fazendeiro"].findUnique({
         where: {
           email: fazendeiro.email,
         },
       });
 
-      if (exists !== null) {
+      const exists = await this.prisma["fazendeiro"].findUnique({
+        where: {
+          bi_fazendeiro: fazendeiro.bi_fazendeiro
+        },
+      });
+
+      if (exists_ !== null || exists !== null) {
         const object_error = {
           error: "Esta conta já existe",
           path: "createFarmer method's class",
@@ -1163,7 +1167,6 @@ export class DatabaseConnectionGET {
                 },
               },
               nome_consumidor: true,
-              numero_telefone: true,
               sexo: true,
               compras: {
                 select: {
