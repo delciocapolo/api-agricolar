@@ -1,6 +1,6 @@
 extend schema
   @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable", "@inaccessible"])
-  
+
 scalar Date
 
 # utilitarios
@@ -8,12 +8,6 @@ enum Sexo {
   M
   F
 }
-
-# enum Role {
-#   Farmer
-#   Costumer
-#   Employee
-# }
 
 # Entidades | como [fazendeiro, consumidor, produto, fazenda]
 type LocalizacaoSchema @shareable  {
