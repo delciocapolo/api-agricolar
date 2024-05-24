@@ -12,3 +12,6 @@ O bin(rover) deveria estar no directório raíz, mas isso iria complicar um pouc
 
 ## Gerar o build
 Para gerar o build, podemos usar tanto o webpack quando o tsc! Para o webpack uma config já está preparada e pronta a usar.
+
+# ATENÇÃO
+Este repositório era o backend da plataforma [Agricolar](https://github.com/delciocapolo/agricolar). Actualmente o projecto foi descontinuado e concentra-se um novo, em repositório privado.
